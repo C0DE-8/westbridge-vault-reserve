@@ -5,8 +5,14 @@
   --text-soft: #667085;
   --border: #e8edf4;
   --primary: #0f62fe;
+  --page-gradient:
+    radial-gradient(circle at 14% 8%, rgba(15, 98, 254, 0.1), transparent 30%),
+    radial-gradient(circle at 88% 14%, rgba(20, 184, 166, 0.1), transparent 28%),
+    linear-gradient(180deg, #fbfdff 0%, var(--bg) 48%);
+  --card-gradient: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 255, 0.92));
+  --soft-gradient: linear-gradient(135deg, rgba(15, 98, 254, 0.08), rgba(20, 184, 166, 0.08));
   min-height: 100vh;
-  background: var(--bg);
+  background: var(--page-gradient);
   color: var(--text);
   padding: 20px 16px 112px;
 }
@@ -18,6 +24,12 @@
   --text-soft: #94a3b8;
   --border: rgba(148, 163, 184, 0.22);
   --primary: #60a5fa;
+  --page-gradient:
+    radial-gradient(circle at 14% 8%, rgba(96, 165, 250, 0.15), transparent 30%),
+    radial-gradient(circle at 88% 14%, rgba(45, 212, 191, 0.12), transparent 28%),
+    linear-gradient(180deg, #07111f 0%, #081525 54%, #06101d 100%);
+  --card-gradient: linear-gradient(145deg, rgba(15, 26, 43, 0.98), rgba(10, 21, 36, 0.94));
+  --soft-gradient: linear-gradient(135deg, rgba(96, 165, 250, 0.14), rgba(45, 212, 191, 0.1));
 }
 
 .shell {
@@ -39,7 +51,7 @@
   height: 42px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--card-bg);
+  background: var(--card-gradient);
   color: var(--text);
   display: grid;
   place-items: center;
@@ -61,7 +73,7 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: rgba(15, 98, 254, 0.1);
+  background: var(--soft-gradient);
   color: var(--primary);
   margin-bottom: 10px;
 }
@@ -79,7 +91,7 @@
 .panel {
   border: 1px solid var(--border);
   border-radius: 26px;
-  background: var(--card-bg);
+  background: var(--card-gradient);
   padding: 22px;
   box-shadow: 0 18px 36px rgba(16, 24, 40, 0.08);
 }
@@ -126,7 +138,7 @@
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--card-bg);
+  background: var(--card-gradient);
 }
 
 .segmented button {
@@ -159,7 +171,7 @@
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.04));
 }
 
 .transactionIcon {
@@ -168,7 +180,7 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: rgba(15, 98, 254, 0.1);
+  background: var(--soft-gradient);
   color: var(--primary);
 }
 
@@ -234,7 +246,7 @@
 }
 
 .transferSteps .activeStep {
-  background: rgba(15, 98, 254, 0.1);
+  background: var(--soft-gradient);
   color: var(--primary);
   border-color: rgba(15, 98, 254, 0.28);
 }
@@ -251,7 +263,7 @@
   gap: 12px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.04));
   padding: 12px;
 }
 
@@ -268,7 +280,7 @@
 .draftNotice button {
   border: 0;
   border-radius: 12px;
-  background: rgba(15, 98, 254, 0.1);
+  background: var(--soft-gradient);
   color: var(--primary);
   min-height: 36px;
   padding: 0 12px;
@@ -302,7 +314,7 @@
 }
 
 .formActions .secondaryAction {
-  background: var(--bg);
+  background: var(--card-gradient);
   color: var(--text);
   border: 1px solid var(--border);
 }
@@ -317,7 +329,7 @@
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.04));
   padding: 12px;
 }
 
@@ -349,7 +361,7 @@
   min-height: 48px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.035));
   color: var(--text);
   padding: 0 14px;
   outline: none;
@@ -358,7 +370,7 @@
 .pinModule {
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: var(--bg);
+  background: var(--soft-gradient);
   padding: 16px;
 }
 
@@ -383,7 +395,7 @@
 .balanceMiniGrid div {
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: var(--soft-gradient);
   padding: 14px;
 }
 
@@ -449,7 +461,7 @@
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.04));
   padding: 14px;
 }
 
@@ -530,7 +542,7 @@
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 20px;
-  background: var(--bg);
+  background: var(--soft-gradient);
 }
 
 .receiptRecipient > span {
@@ -539,7 +551,7 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: rgba(15, 98, 254, 0.1);
+  background: var(--card-gradient);
   color: var(--primary);
 }
 
@@ -578,7 +590,7 @@
   padding: 14px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.04));
   text-align: left;
 }
 
@@ -627,7 +639,7 @@
   min-height: 48px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: var(--card-gradient);
   color: var(--text);
   display: flex;
   align-items: center;
@@ -689,7 +701,7 @@
 .profileGrid div {
   border: 1px solid var(--border);
   border-radius: 16px;
-  background: var(--bg);
+  background: linear-gradient(145deg, var(--bg), rgba(15, 98, 254, 0.04));
   padding: 14px;
   min-width: 0;
 }
@@ -716,7 +728,7 @@
   padding: 6px;
   border: 1px solid var(--border);
   border-radius: 18px;
-  background: var(--card-bg);
+  background: var(--card-gradient);
 }
 
 .segmentedTwo button {

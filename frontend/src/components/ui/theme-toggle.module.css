@@ -1,0 +1,72 @@
+.toggle {
+  width: 64px;
+  height: 32px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(228, 233, 242, 0.82);
+  background: rgba(255, 255, 255, 0.86);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 10px 22px rgba(16, 24, 40, 0.1);
+}
+
+.toggle:focus-visible {
+  outline: 2px solid rgba(96, 165, 250, 0.75);
+  outline-offset: 3px;
+}
+
+.dark {
+  border-color: rgba(39, 39, 42, 0.9);
+  background: rgba(9, 9, 11, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.track {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.knob,
+.ghostIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: transform 0.3s ease, background 0.3s ease, color 0.3s ease;
+}
+
+.knob {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.dark .knob {
+  background: #27272a;
+  color: white;
+}
+
+.light .knob {
+  transform: translateX(32px);
+}
+
+.ghostIcon {
+  color: #111827;
+}
+
+.dark .ghostIcon {
+  color: #71717a;
+}
+
+.light .ghostIcon {
+  transform: translateX(-32px);
+}
+
+.toggle svg {
+  width: 16px;
+  height: 16px;
+}

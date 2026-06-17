@@ -1,6 +1,8 @@
 import styles from "./UserSettingsDrawer.module.css";
 import { useNavigate } from "react-router-dom";
+import { Bell, Headphones, LogOut, ShieldCheck, UserRound } from "lucide-react";
 import { resolveAsset } from "../../utils/assets";
+import { ThemeToggle } from "../ui/theme-toggle";
 
 export default function UserSettingsDrawer({
   open,
@@ -15,10 +17,10 @@ export default function UserSettingsDrawer({
   if (!open) return null;
 
   const navItems = [
-    { key: "Profile", title: "Profile", text: "Personal details and account profile", path: "/profile" },
-    { key: "Security", title: "Security", text: "Password, PIN, and verification settings", path: "/settings" },
-    { key: "Alerts", title: "Notifications", text: "Email and transaction alerts", path: "/settings" },
-    { key: "Support", title: "Support", text: "Tickets, messages, and help center", path: "/more" },
+    { title: "Profile", icon: <UserRound />, path: "/profile" },
+    { title: "Security", icon: <ShieldCheck />, path: "/settings" },
+    { title: "Notifications", icon: <Bell />, path: "/settings" },
+    { title: "Support", icon: <Headphones />, path: "/more" },
   ];
   const profileImage = resolveAsset(user?.profile_image_url || "");
 
@@ -44,36 +46,27 @@ export default function UserSettingsDrawer({
           {navItems.map((item) => (
             <button
               type="button"
-              key={item.key}
+              key={item.title}
               onClick={() => {
                 onClose();
                 navigate(item.path);
               }}
             >
-              <span>{item.key}</span>
-              <div>
-                <strong>{item.title}</strong>
-                <small>{item.text}</small>
-              </div>
+              <span>{item.icon}</span>
+              <strong>{item.title}</strong>
             </button>
           ))}
 
-          <button type="button" onClick={onToggleTheme}>
-            <span>Theme</span>
-            <div>
-              <strong>{theme === "dark" ? "Light mode" : "Dark mode"}</strong>
-              <small>Switch dashboard appearance</small>
-            </div>
-          </button>
-
-          <button type="button" className={styles.logout} onClick={onLogout}>
-            <span>Exit</span>
-            <div>
-              <strong>Logout</strong>
-              <small>End this banking session</small>
-            </div>
-          </button>
         </nav>
+
+        <div className={styles.drawerActions}>
+          <ThemeToggle isDark={theme === "dark"} onToggle={onToggleTheme} />
+
+          <button type="button" className={styles.logoutButton} onClick={onLogout}>
+            <LogOut />
+            <span>Logout</span>
+          </button>
+        </div>
       </aside>
     </div>
   );

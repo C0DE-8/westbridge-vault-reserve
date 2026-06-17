@@ -12,7 +12,6 @@ import {
   FiSend,
   FiSettings,
   FiTrendingUp,
-  FiUser,
 } from "react-icons/fi";
 import axiosInstance from "../../api/axios";
 import MobileFooterNav from "../../components/Dashboard/MobileFooterNav";
@@ -344,16 +343,21 @@ export default function Dashboard() {
                 {profileImage ? (
                   <img src={profileImage} alt={displayName} />
                 ) : (
-                  <>
-                    {displayName.charAt(0).toUpperCase()}
-                    <span><FiUser /></span>
-                  </>
+                  displayName.charAt(0).toUpperCase()
                 )}
               </div>
               <div>
                 <span>{bankName}</span>
                 <strong>{displayName}</strong>
               </div>
+            </button>
+            <button
+              className={styles.mobileSettingsButton}
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Open settings"
+            >
+              <FiSettings />
             </button>
           </header>
 
