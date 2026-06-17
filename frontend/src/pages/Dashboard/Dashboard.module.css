@@ -151,6 +151,13 @@
   gap: 16px;
 }
 
+.topbarIdentity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
 .pageEyebrow {
   font-size: 13px;
   color: var(--text-soft);
@@ -168,6 +175,26 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+
+.iconAction {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  transition: 0.25s ease;
+}
+
+.iconAction:hover {
+  background: rgba(15, 98, 254, 0.1);
+  color: var(--primary);
 }
 
 .topActionGhost,
@@ -214,6 +241,10 @@
   background: linear-gradient(135deg, var(--primary), var(--accent));
   color: white;
   font-weight: 800;
+}
+
+.mobileGlassNav {
+  display: none;
 }
 
 .heroGrid {

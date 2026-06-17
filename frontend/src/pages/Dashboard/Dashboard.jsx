@@ -104,11 +104,6 @@ export default function Dashboard() {
         </nav>
 
         <div className={styles.sidebarBottom}>
-          <button className={styles.bottomLink} type="button">
-            <span className={styles.navIcon}>⚙</span>
-            <span>Settings</span>
-          </button>
-
           <button
             className={`${styles.bottomLink} ${styles.logoutLink}`}
             type="button"
@@ -144,21 +139,32 @@ export default function Dashboard() {
 
       <main className={styles.mainContent}>
         <header className={styles.topbar}>
-          <div>
-            <p className={styles.pageEyebrow}>Overview</p>
-            <h1 className={styles.pageTitle}>Welcome back, {displayName} 👋</h1>
+          <div className={styles.topbarIdentity}>
+            <div className={styles.profileAvatar}>
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className={styles.pageEyebrow}>Overview</p>
+              <h1 className={styles.pageTitle}>Welcome back, {displayName}</h1>
+            </div>
           </div>
 
           <div className={styles.topbarActions}>
+            <button className={styles.iconAction} type="button" aria-label="Settings" title="Settings">
+              ⚙
+            </button>
+            <button
+              className={styles.iconAction}
+              type="button"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+              title="Toggle theme"
+            >
+              {theme === "dark" ? "☼" : "◐"}
+            </button>
             <button className={styles.topActionGhost}>Request</button>
             <button className={styles.topActionGhost}>Topup</button>
             <button className={styles.topActionPrimary}>Move Money</button>
-
-            <div className={styles.profileBadge}>
-              <div className={styles.profileAvatar}>
-                {displayName.charAt(0).toUpperCase()}
-              </div>
-            </div>
           </div>
         </header>
 
@@ -373,6 +379,29 @@ export default function Dashboard() {
           </div>
         </section>
       </main>
+
+      <nav className={styles.mobileGlassNav} aria-label="Mobile dashboard navigation">
+        <button type="button" className={styles.mobileNavActive}>
+          <span>▦</span>
+          <strong>Home</strong>
+        </button>
+        <button type="button">
+          <span>⇄</span>
+          <strong>Pay</strong>
+        </button>
+        <button type="button">
+          <span>💳</span>
+          <strong>Cards</strong>
+        </button>
+        <button type="button">
+          <span>⚙</span>
+          <strong>Settings</strong>
+        </button>
+        <button type="button" onClick={handleLogout}>
+          <span>↩</span>
+          <strong>Logout</strong>
+        </button>
+      </nav>
     </div>
   );
 }
