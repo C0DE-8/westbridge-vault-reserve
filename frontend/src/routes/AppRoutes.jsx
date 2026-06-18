@@ -12,6 +12,7 @@ import AdminUsers from "../pages/Admin/pages/AdminUsers";
 import AdminWallets from "../pages/Admin/pages/AdminWallets";
 import AdminBillPayments from "../pages/Admin/pages/AdminBillPayments";
 import VerifyLoginOTP from "../pages/VerifyLoginOTP/VerifyLoginOTP";
+import UserPage from "../pages/UserPages/UserPage";
 import TransactionsPage from "../pages/UserPages/TransactionsPage";
 import TransactionHistoryPage from "../pages/UserPages/TransactionHistoryPage";
 import ConvertPage from "../pages/UserPages/ConvertPage";

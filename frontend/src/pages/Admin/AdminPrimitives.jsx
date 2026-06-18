@@ -1,6 +1,5 @@
 import styles from "./Admin.module.css";
-
-const API_ORIGIN = "http://localhost:5000";
+import { API_ORIGIN } from "../../api/axios";
 
 export const resolveAsset = (url) => {
   if (!url) return "";

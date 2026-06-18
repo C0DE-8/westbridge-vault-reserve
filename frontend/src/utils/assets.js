@@ -1,4 +1,4 @@
-const API_ORIGIN = "http://localhost:5000";
+import { API_ORIGIN } from "../api/axios";
 
 export function resolveAsset(url) {
   if (!url) return "";

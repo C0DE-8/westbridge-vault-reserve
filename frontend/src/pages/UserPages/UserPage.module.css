@@ -253,6 +253,47 @@
   padding: 16px;
 }
 
+.billHeroCard {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(185, 28, 28, 0.08), rgba(255, 255, 255, 0) 42%),
+    var(--card-gradient);
+  box-shadow: 0 18px 36px rgba(16, 24, 40, 0.08);
+  padding: 16px;
+}
+
+.billHeroArt {
+  width: 74px;
+  height: 74px;
+  border-radius: 22px;
+  background-image: var(--sheet-image);
+  background-repeat: no-repeat;
+  background-size: 400% 400%;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 12px 24px rgba(16, 24, 40, 0.08);
+}
+
+.billHeroCard span,
+.billHeroCard strong,
+.billHeroCard small {
+  display: block;
+}
+
+.billHeroCard span,
+.billHeroCard small {
+  color: var(--text-soft);
+}
+
+.billHeroCard strong {
+  font-size: 20px;
+  margin: 4px 0 6px;
+}
+
 .servicePreviewArt,
 .serviceTileArt,
 .transactionImageIcon {
@@ -605,6 +646,32 @@
   font-weight: 800;
 }
 
+.billFormShell {
+  gap: 18px;
+}
+
+.billFieldButton {
+  width: 100%;
+  min-height: 56px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(145deg, var(--bg), rgba(185, 28, 28, 0.025));
+  color: var(--text);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.billFieldButton svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-soft);
+}
+
 .formGrid input,
 .formGrid select,
 .formGrid textarea {
@@ -623,6 +690,111 @@
   padding: 14px;
   resize: vertical;
   font: inherit;
+}
+
+.selectionSheetOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  display: grid;
+  align-items: end;
+  background: rgba(7, 17, 31, 0.34);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.selectionSheet {
+  width: min(100%, 720px);
+  max-height: min(72vh, 640px);
+  margin: 0 auto;
+  border-radius: 30px 30px 0 0;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(250, 250, 252, 0.96));
+  box-shadow: 0 -24px 50px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+[data-theme="dark"] .selectionSheet {
+  background: linear-gradient(180deg, rgba(15, 26, 43, 0.98), rgba(10, 21, 36, 0.96));
+}
+
+.selectionSheetHeader {
+  padding: 24px 22px 16px;
+}
+
+.selectionSheetHeader strong {
+  font-size: 18px;
+}
+
+.selectionSheetList {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px 22px;
+  overflow-y: auto;
+}
+
+.selectionSheetItem {
+  width: 100%;
+  min-height: 80px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) 28px;
+  gap: 14px;
+  align-items: center;
+  text-align: left;
+  padding: 0 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+[data-theme="dark"] .selectionSheetItem {
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.selectionSheetItemActive {
+  border-color: rgba(185, 28, 28, 0.18);
+  box-shadow: 0 10px 20px rgba(16, 24, 40, 0.06);
+}
+
+.selectionSheetItemArt,
+.selectionSheetItemDot {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.selectionSheetItemArt {
+  background-image: var(--sheet-image);
+  background-repeat: no-repeat;
+  background-size: 400% 400%;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.selectionSheetItemDot {
+  background: var(--soft-gradient);
+}
+
+.selectionSheetItem strong {
+  font-size: 16px;
+}
+
+.selectionSheetCheck {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(185, 28, 28, 0.08);
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 900;
 }
 
 .walletPreview {
@@ -1402,6 +1574,31 @@
 @media (max-width: 520px) {
   .profileGrid {
     grid-template-columns: 1fr;
+  }
+
+  .billHeroCard {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 12px;
+    border-radius: 24px;
+  }
+
+  .billHeroArt {
+    width: 62px;
+    height: 62px;
+    border-radius: 18px;
+  }
+
+  .selectionSheet {
+    width: 100%;
+    max-height: 68vh;
+  }
+
+  .selectionSheetHeader {
+    padding: 22px 18px 14px;
+  }
+
+  .selectionSheetList {
+    padding: 0 12px 18px;
   }
 
   .servicePreviewCard {

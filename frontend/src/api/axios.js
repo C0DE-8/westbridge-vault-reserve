@@ -1,8 +1,11 @@
 // /src/api/axios.js
 import axios from "axios";
 
+export const API_BASE_URL = "https://api.west.74globalgain.pw/api";
+export const API_ORIGIN = "https://api.west.74globalgain.pw";
+
 const axiosInstance = axios.create({
-  baseURL: "https://api.west.74globalgain.pw/api",
+  baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },

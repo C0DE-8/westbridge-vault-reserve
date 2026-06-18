@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiArrowLeft,
+  FiChevronRight,
   FiFileText,
   FiGrid,
   FiList,
@@ -12,7 +13,6 @@ import {
 import axiosInstance from "../../api/axios";
 import MobileFooterNav from "../../components/Dashboard/MobileFooterNav";
 import UserSettingsDrawer from "../../components/Dashboard/UserSettingsDrawer";
-import CustomSelect from "../../components/Form/CustomSelect";
 import GlassToast, { useGlassToast } from "../../components/Toast/GlassToast";
 import TransactionPinPrompt from "../../components/ui/TransactionPinPrompt";
 import { useAuth } from "../../context/AuthContext";
@@ -112,6 +112,7 @@ export default function BillsAirtimePage() {
   const [pinOpen, setPinOpen] = useState(false);
   const [hasPin, setHasPin] = useState(true);
   const [checkingPin, setCheckingPin] = useState(true);
+  const [sheetConfig, setSheetConfig] = useState(null);
   const { toasts, notify, dismissToast } = useGlassToast();
   const displayName = userUser?.full_name || userUser?.username || "User";
   const currencySign = userUser?.currency_sign || "$";
@@ -126,6 +127,8 @@ export default function BillsAirtimePage() {
       : billImageClassMap[form.bill_category] || "billArtElectricity";
   const activeVisualSheet = form.payment_kind === "airtime" ? airtimeSpriteSheet : billsSpriteSheet;
   const formatMoney = (value) => `${currencySign}${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const selectedBillType = billTypeOptions.find((item) => item.value === form.bill_category);
+  const selectedAccount = accountOptions.find((item) => item.value === form.from_account);
 
   const loadPayments = async () => {
     try {
@@ -243,6 +246,9 @@ export default function BillsAirtimePage() {
     navigate("/", { replace: true });
   };
 
+  const openSelectionSheet = (config) => setSheetConfig(config);
+  const closeSelectionSheet = () => setSheetConfig(null);
+
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
@@ -281,18 +287,22 @@ export default function BillsAirtimePage() {
           </button>
         </div>
 
-        <section className={styles.servicePreviewCard}>
+        <section className={styles.billHeroCard}>
           <div
-            className={`${styles.servicePreviewArt} ${styles[activeVisualClass]}`}
+            className={`${styles.billHeroArt} ${styles[activeVisualClass]}`}
             style={{ "--sheet-image": `url(${activeVisualSheet})` }}
           />
           <div>
-            <span>{form.payment_kind === "airtime" ? "Mobile Recharge" : "Bill Category"}</span>
-            <strong>{form.payment_kind === "airtime" ? form.provider_name || "Carrier" : billTypeOptions.find((item) => item.value === form.bill_category)?.label}</strong>
+            <span>{form.payment_kind === "airtime" ? "Mobile Recharge" : "Bill Payment"}</span>
+            <strong>
+              {form.payment_kind === "airtime"
+                ? form.provider_name || "Select network"
+                : selectedBillType?.label || "Select bill type"}
+            </strong>
             <small>
               {form.payment_kind === "airtime"
-                ? "Pick a carrier and submit the recharge for approval."
-                : "Select the utility or obligation you want the admin to process."}
+                ? "Enter the mobile line and submit for admin approval."
+                : "Choose the bill type, provider, and payment account."}
             </small>
           </div>
         </section>
@@ -307,70 +317,85 @@ export default function BillsAirtimePage() {
 
           {message && <p className={styles.notice}>{message}</p>}
 
-          <form className={styles.formGrid} onSubmit={requestPinConfirmation}>
-            {form.payment_kind === "bill" ? (
-              <div className={styles.imagePickerGroup}>
-                <span className={styles.pickerLabel}>Bill type</span>
-                <div className={styles.imagePickerGrid}>
-                  {billTypeOptions.map((option) => (
-                    <button
-                      type="button"
-                      key={option.value}
-                      className={`${styles.imagePickerCard} ${
-                        form.bill_category === option.value ? styles.imagePickerCardActive : ""
-                      }`}
-                      onClick={() => updateField("bill_category", option.value)}
-                    >
-                      <div
-                        className={`${styles.serviceTileArt} ${styles[billImageClassMap[option.value]]}`}
-                        style={{ "--sheet-image": `url(${billsSpriteSheet})` }}
-                      />
-                      <strong>{option.label}</strong>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
+          <form className={`${styles.formGrid} ${styles.billFormShell}`} onSubmit={requestPinConfirmation}>
             {form.payment_kind === "airtime" ? (
-              <div className={styles.imagePickerGroup}>
-                <span className={styles.pickerLabel}>Carrier</span>
-                <div className={`${styles.imagePickerGrid} ${styles.imagePickerGridTight}`}>
-                  {airtimeProviderOptions.map((option) => (
-                    <button
-                      type="button"
-                      key={option.value}
-                      className={`${styles.imagePickerCard} ${
-                        form.provider_name === option.value ? styles.imagePickerCardActive : ""
-                      }`}
-                      onClick={() => updateField("provider_name", option.value)}
-                    >
-                      <div
-                        className={`${styles.serviceTileArt} ${styles[airtimeImageClassMap[option.value]]}`}
-                        style={{ "--sheet-image": `url(${airtimeSpriteSheet})` }}
-                      />
-                      <strong>{option.label}</strong>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+              <label>
+                Country
+                <button type="button" className={styles.billFieldButton}>
+                  <span>United States</span>
+                </button>
+              </label>
+            ) : (
+              <label>
+                Bill type
+                <button
+                  type="button"
+                  className={styles.billFieldButton}
+                  onClick={() =>
+                    openSelectionSheet({
+                      title: "Select bill type",
+                      options: billTypeOptions.map((option) => ({
+                        value: option.value,
+                        label: option.label,
+                        artClass: billImageClassMap[option.value],
+                        sheet: billsSpriteSheet,
+                      })),
+                      selectedValue: form.bill_category,
+                      onSelect: (value) => updateField("bill_category", value),
+                    })
+                  }
+                >
+                  <span>{selectedBillType?.label || "Select bill type"}</span>
+                  <FiChevronRight />
+                </button>
+              </label>
+            )}
 
-            {form.payment_kind === "bill" ? (
-              <CustomSelect
-                label="Provider"
-                value={form.provider_name || providerOptions[0]?.value || ""}
-                options={providerOptions.length ? providerOptions : [{ value: "", label: "Select provider" }]}
-                onChange={(value) => updateField("provider_name", value)}
-              />
-            ) : null}
+            <label>
+              {form.payment_kind === "airtime" ? "Network" : "Provider"}
+              <button
+                type="button"
+                className={styles.billFieldButton}
+                onClick={() =>
+                  openSelectionSheet({
+                    title: form.payment_kind === "airtime" ? "Select Network" : "Select Provider",
+                    options: providerOptions.map((option) => ({
+                      value: option.value,
+                      label: option.label,
+                      artClass:
+                        form.payment_kind === "airtime"
+                          ? airtimeImageClassMap[option.value]
+                          : billImageClassMap[form.bill_category],
+                      sheet: form.payment_kind === "airtime" ? airtimeSpriteSheet : billsSpriteSheet,
+                    })),
+                    selectedValue: form.provider_name,
+                    onSelect: (value) => updateField("provider_name", value),
+                  })
+                }
+              >
+                <span>{form.provider_name || `Select ${form.payment_kind === "airtime" ? "network" : "provider"}`}</span>
+                <FiChevronRight />
+              </button>
+            </label>
 
-            <CustomSelect
-              label="Pay from"
-              value={form.from_account}
-              options={accountOptions}
-              onChange={(value) => updateField("from_account", value)}
-            />
+            <label>
+              Pay from
+              <button
+                type="button"
+                className={styles.billFieldButton}
+                onClick={() =>
+                  openSelectionSheet({
+                    title: "Select Account",
+                    options: accountOptions,
+                    selectedValue: form.from_account,
+                    onSelect: (value) => updateField("from_account", value),
+                  })
+                }
+              >
+                <span>{selectedAccount?.label || "Select account"}</span>
+                <FiChevronRight />
+              </button>
+            </label>
 
             <label>
               {form.payment_kind === "airtime" ? "Phone number" : "Account / reference number"}
@@ -520,6 +545,43 @@ export default function BillsAirtimePage() {
 
       <MobileFooterNav />
       <GlassToast toasts={toasts} onDismiss={dismissToast} />
+      {sheetConfig ? (
+        <div className={styles.selectionSheetOverlay} onClick={closeSelectionSheet}>
+          <div className={styles.selectionSheet} onClick={(event) => event.stopPropagation()}>
+            <div className={styles.selectionSheetHeader}>
+              <strong>{sheetConfig.title}</strong>
+            </div>
+            <div className={styles.selectionSheetList}>
+              {sheetConfig.options.map((option) => (
+                <button
+                  type="button"
+                  key={option.value}
+                  className={`${styles.selectionSheetItem} ${
+                    sheetConfig.selectedValue === option.value ? styles.selectionSheetItemActive : ""
+                  }`}
+                  onClick={() => {
+                    sheetConfig.onSelect(option.value);
+                    closeSelectionSheet();
+                  }}
+                >
+                  {option.artClass ? (
+                    <span
+                      className={`${styles.selectionSheetItemArt} ${styles[option.artClass]}`}
+                      style={{ "--sheet-image": `url(${option.sheet})` }}
+                    />
+                  ) : (
+                    <span className={styles.selectionSheetItemDot} />
+                  )}
+                  <strong>{option.label}</strong>
+                  <span className={styles.selectionSheetCheck}>
+                    {sheetConfig.selectedValue === option.value ? "✓" : ""}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : null}
       <TransactionPinPrompt
         open={pinOpen}
         title="Confirm this payment"
