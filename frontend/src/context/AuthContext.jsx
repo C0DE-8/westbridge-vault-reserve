@@ -90,6 +90,27 @@ export const AuthProvider = ({ children }) => {
 
   const getSessionToken = (role) => localStorage.getItem(SESSION_KEYS[role].token);
 
+  const updateSessionUser = (role, updates) => {
+    const normalizedRole = role === "admin" ? "admin" : "user";
+    const currentUser = normalizedRole === "admin" ? adminUser : userUser;
+    if (!currentUser) return null;
+
+    const nextUser = normalizeUser({ ...currentUser, ...updates });
+    localStorage.setItem(SESSION_KEYS[normalizedRole].user, JSON.stringify(nextUser));
+
+    if (normalizedRole === "admin") {
+      setAdminUser(nextUser);
+    } else {
+      setUserUser(nextUser);
+    }
+
+    if (user?.role === normalizedRole) {
+      setUser(nextUser);
+    }
+
+    return nextUser;
+  };
+
   const logout = (role = user?.role || localStorage.getItem("activeSessionRole") || "user") => {
     const normalizedRole = role === "admin" ? "admin" : "user";
     const keys = SESSION_KEYS[normalizedRole];
@@ -126,6 +147,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         getSessionUser,
         getSessionToken,
+        updateSessionUser,
       }}
     >
       {children}

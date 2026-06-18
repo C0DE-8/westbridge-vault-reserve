@@ -12,11 +12,12 @@ import AdminUsers from "../pages/Admin/pages/AdminUsers";
 import AdminWallets from "../pages/Admin/pages/AdminWallets";
 import AdminBillPayments from "../pages/Admin/pages/AdminBillPayments";
 import VerifyLoginOTP from "../pages/VerifyLoginOTP/VerifyLoginOTP";
-import UserPage from "../pages/UserPages/UserPage";
 import TransactionsPage from "../pages/UserPages/TransactionsPage";
 import TransactionHistoryPage from "../pages/UserPages/TransactionHistoryPage";
 import ConvertPage from "../pages/UserPages/ConvertPage";
+import MorePage from "../pages/UserPages/MorePage";
 import ProfilePage from "../pages/UserPages/ProfilePage";
+import SecurityPage from "../pages/UserPages/SecurityPage";
 import TransferDetailPage from "../pages/UserPages/TransferDetailPage";
 import FundingPage from "../pages/UserPages/FundingPage";
 import BillsAirtimePage from "../pages/UserPages/BillsAirtimePage";
@@ -185,11 +186,7 @@ export default function AppRoutes() {
           path="/settings"
           element={
             <ProtectedRoute allowedRoles={["user"]}>
-              <UserPage
-                type="settings"
-                title="Settings"
-                description="Update your profile, security preferences, display mode, and notification options."
-              />
+              <SecurityPage />
             </ProtectedRoute>
           }
         />
@@ -198,11 +195,7 @@ export default function AppRoutes() {
           path="/more"
           element={
             <ProtectedRoute allowedRoles={["user"]}>
-              <UserPage
-                type="more"
-                title="More"
-                description="Access statements, invoices, support options, loans, and other banking tools."
-              />
+              <MorePage />
             </ProtectedRoute>
           }
         />

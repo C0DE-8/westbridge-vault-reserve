@@ -39,6 +39,11 @@
   align-items: center;
 }
 
+.mobileMenuButton,
+.mobileMenu {
+  display: none;
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -92,6 +97,82 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.mobileMenuButton {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text);
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+.mobileMenuButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mobileMenu {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto 16px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 20px 44px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: max-height 0.28s ease, opacity 0.22s ease, transform 0.22s ease, padding 0.22s ease;
+}
+
+.mobileMenuOpen {
+  max-height: 420px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  padding: 14px;
+}
+
+.mobileNav {
+  display: grid;
+  gap: 8px;
+}
+
+.mobileNav a {
+  min-height: 48px;
+  padding: 0 14px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.mobileNavActive,
+.mobileNav a:hover {
+  color: var(--primary) !important;
+  background: rgba(225, 29, 72, 0.08);
+}
+
+.mobileMenuActions {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.mobileMenuActions .secondaryLink,
+.mobileMenuActions .primaryLink {
+  justify-content: center;
 }
 
 .primaryLink,
@@ -488,14 +569,28 @@
 
 @media (max-width: 1080px) {
   .headerInner {
-    grid-template-columns: 1fr;
-    justify-items: start;
+    grid-template-columns: minmax(0, 1fr) auto;
     padding: 16px 0;
   }
 
   .nav,
   .headerActions {
-    justify-content: flex-start;
+    display: none;
+  }
+
+  .mobileMenuButton,
+  .mobileMenu {
+    display: grid;
+  }
+
+  .brand {
+    min-width: 0;
+  }
+
+  .mobileMenuButton {
+    justify-self: end;
+    margin-left: 12px;
+    flex: 0 0 auto;
   }
 
   .twoCol,
@@ -517,6 +612,25 @@
 }
 
 @media (max-width: 720px) {
+  .headerInner {
+    width: min(100%, calc(100% - 24px));
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    min-height: 74px;
+  }
+
+  .brand img,
+  .footerLogo {
+    width: 158px;
+    height: 52px;
+  }
+
+  .mobileMenu {
+    width: min(100%, calc(100% - 24px));
+    margin-bottom: 12px;
+    border-radius: 22px;
+  }
+
   .heroContent {
     padding: 72px 0 60px;
   }

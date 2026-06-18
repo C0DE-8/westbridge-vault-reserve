@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./VerifyLoginOTP.module.css";
 
-const BRAND_LOGO = "/westbridge-assets/images/westbridge-wg.png";
+const BRAND_LOGO = "/westbridge-assets/images/westbridge.png";
 
 export default function VerifyLoginOTP() {
   const navigate = useNavigate();

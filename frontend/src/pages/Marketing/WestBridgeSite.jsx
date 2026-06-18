@@ -1,12 +1,15 @@
+import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   FiArrowRight,
   FiClock,
+  FiMenu,
   FiMapPin,
   FiPhone,
   FiShield,
   FiTrendingUp,
   FiUsers,
+  FiX,
 } from "react-icons/fi";
 import styles from "./WestBridgeSite.module.css";
 
@@ -48,12 +51,18 @@ const serviceItems = [
 ];
 
 function MarketingLayout({ children, activePath }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [activePath]);
+
   return (
     <main className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link className={styles.brand} to="/">
-            <img src={asset("westbridge-wg.png")} alt="West Bridge Vault Reserve" />
+            <img src={asset("westbridge.png")} alt="West Bridge Vault Reserve" />
             <div>
               <strong>West Bridge Vault Reserve</strong>
               <span>Secure online banking</span>
@@ -73,6 +82,34 @@ function MarketingLayout({ children, activePath }) {
           </nav>
 
           <div className={styles.headerActions}>
+            <Link className={styles.secondaryLink} to="/login?mode=login">Login</Link>
+            <Link className={styles.primaryLink} to="/login?mode=register">Open Account</Link>
+          </div>
+
+          <button
+            className={styles.mobileMenuButton}
+            type="button"
+            onClick={() => setMenuOpen((current) => !current)}
+            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <FiX /> : <FiMenu />}
+          </button>
+        </div>
+
+        <div className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuOpen : ""}`}>
+          <nav className={styles.mobileNav}>
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={activePath === item.path ? styles.mobileNavActive : ""}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+          <div className={styles.mobileMenuActions}>
             <Link className={styles.secondaryLink} to="/login?mode=login">Login</Link>
             <Link className={styles.primaryLink} to="/login?mode=register">Open Account</Link>
           </div>
@@ -105,6 +142,7 @@ function MarketingLayout({ children, activePath }) {
           <div className={styles.footerCol}>
             <h4>Contact</h4>
             <p>250 Hartford Avenue, Bellingham MA 02019, USA</p>
+            <p>www.westbridgevaultreserve.online</p>
             <p>support@westbridgevaultreserve.com</p>
             <p>Mon - Sat: 09:00 AM - 06:00 PM</p>
           </div>
@@ -381,6 +419,7 @@ export function WestBridgeContactPage() {
             <article className={styles.infoCard}>
               <FiPhone />
               <h3>Let's Talk</h3>
+              <p>www.westbridgevaultreserve.online</p>
               <p>support@westbridgevaultreserve.com</p>
             </article>
           </div>

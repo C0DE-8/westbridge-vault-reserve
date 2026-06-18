@@ -6,7 +6,7 @@ import GlassToast, { useGlassToast } from "../../components/Toast/GlassToast";
 import styles from "./Login.module.css";
 
 const ONBOARDING_DRAFT_KEY = "stercxa_onboarding_draft";
-const BRAND_LOGO = "/westbridge-assets/images/westbridge-wg.png";
+const BRAND_LOGO = "/westbridge-assets/images/westbridge.png";
 
 const emptyRegistration = {
   first_name: "",

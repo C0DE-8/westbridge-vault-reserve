@@ -1,6 +1,7 @@
 // routes/userRoutes.js
 const express = require('express');
 const multer = require('multer');
+const bcrypt = require('bcrypt');
 const db = require('../db');
 const path = require('path');
 const moment = require('moment');
@@ -110,7 +111,13 @@ router.get('/settings/bank-name', authenticateToken, (req, res) => {
 // 🔁 Update user profile
 router.put('/profile/update', authenticateToken, (req, res) => {
   const userId = req.user.id;
-  const { full_name, username } = req.body;
+  const { full_name, username, account_title } = req.body;
+  const nextFullName = (account_title ?? full_name ?? '').trim();
+  const nextUsername = (username ?? '').trim();
+
+  if (!nextFullName || !nextUsername) {
+    return res.status(400).json({ error: 'Account title and username are required' });
+  }
 
   const updateQuery = `
     UPDATE users 
@@ -118,12 +125,47 @@ router.put('/profile/update', authenticateToken, (req, res) => {
     WHERE id = ?
   `;
 
-  db.query(updateQuery, [full_name, username, userId], async (err, result) => {
+  db.query(updateQuery, [nextFullName, nextUsername, userId], async (err, result) => {
     if (err) return res.status(500).json({ error: 'Failed to update user profile' });
 
     await logActivity(userId, 'profile_update', `Updated profile details`);
     res.json({ message: 'Profile updated successfully' });
   });
+});
+
+router.put('/change-password', authenticateToken, async (req, res) => {
+  const userId = req.user.id;
+  const { current_password, new_password } = req.body;
+
+  if (!current_password || !new_password) {
+    return res.status(400).json({ error: 'Current password and new password are required' });
+  }
+
+  if (String(new_password).length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters' });
+  }
+
+  try {
+    db.query('SELECT password FROM users WHERE id = ? LIMIT 1', [userId], async (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      if (!rows.length) return res.status(404).json({ error: 'User not found' });
+
+      const matches = await bcrypt.compare(current_password, rows[0].password);
+      if (!matches) {
+        return res.status(401).json({ error: 'Current password is incorrect' });
+      }
+
+      const hashedPassword = await bcrypt.hash(new_password, 10);
+      db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId], async (updateErr) => {
+        if (updateErr) return res.status(500).json({ error: 'Failed to update password' });
+
+        await logActivity(userId, 'change_password', 'Updated account password');
+        return res.json({ message: 'Password updated successfully' });
+      });
+    });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to update password' });
+  }
 });
 // 📸 Upload user profile image
 router.post('/profile/upload-image', authenticateToken, upload.single('image'), (req, res) => {

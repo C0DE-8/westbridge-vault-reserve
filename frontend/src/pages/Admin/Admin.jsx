@@ -3,7 +3,7 @@ import GlassToast, { useGlassToast } from "../../components/Toast/GlassToast";
 import { useAuth } from "../../context/AuthContext";
 import styles from "./Admin.module.css";
 
-const BRAND_LOGO = "/westbridge-assets/images/westbridge-wg.png";
+const BRAND_LOGO = "/westbridge-assets/images/favicon-wg.png";
 
 const sections = [
   { path: "/admin", label: "Overview", end: true },
