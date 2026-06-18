@@ -22,6 +22,7 @@ import FundingPage from "../pages/UserPages/FundingPage";
 import BillsAirtimePage from "../pages/UserPages/BillsAirtimePage";
 import CardsPage from "../pages/UserPages/CardsPage";
 import StatementsPage from "../pages/UserPages/StatementsPage";
+import SupportPage from "../pages/UserPages/SupportPage";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import PublicRoute from "../components/PublicRoute/PublicRoute";
 
@@ -141,6 +142,15 @@ export default function AppRoutes() {
                 title="More"
                 description="Access statements, invoices, support options, loans, and other banking tools."
               />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/support"
+          element={
+            <ProtectedRoute allowedRoles={["user"]}>
+              <SupportPage />
             </ProtectedRoute>
           }
         />

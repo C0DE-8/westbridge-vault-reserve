@@ -1,6 +1,6 @@
 import styles from "./UserSettingsDrawer.module.css";
 import { useNavigate } from "react-router-dom";
-import { Bell, Headphones, LogOut, ShieldCheck, UserRound, X } from "lucide-react";
+import { Headphones, LogOut, ShieldCheck, UserRound, X } from "lucide-react";
 import { resolveAsset } from "../../utils/assets";
 import { ThemeToggle } from "../ui/theme-toggle";
 
@@ -19,8 +19,7 @@ export default function UserSettingsDrawer({
   const navItems = [
     { title: "Profile", icon: <UserRound />, path: "/profile" },
     { title: "Security", icon: <ShieldCheck />, path: "/settings" },
-    { title: "Notifications", icon: <Bell />, path: "/settings" },
-    { title: "Support", icon: <Headphones />, path: "/more" },
+    { title: "Support", icon: <Headphones />, path: "/support" },
   ];
   const profileImage = resolveAsset(user?.profile_image_url || "");
 

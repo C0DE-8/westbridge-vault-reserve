@@ -5,8 +5,10 @@ import {
   FiCheckCircle,
   FiClock,
   FiCreditCard,
+  FiChevronLeft,
+  FiChevronRight,
+  FiTrash2,
   FiSettings,
-  FiShield,
 } from "react-icons/fi";
 import axiosInstance from "../../api/axios";
 import MobileFooterNav from "../../components/Dashboard/MobileFooterNav";
@@ -38,6 +40,10 @@ export default function CardsPage() {
   const [bankName, setBankName] = useState("Stercxa Bank");
   const [loading, setLoading] = useState(true);
   const [submittingType, setSubmittingType] = useState("");
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
 
   const displayName = profile?.full_name || profile?.username || "User";
   const currencySign = profile?.currency_sign || "$";
@@ -88,14 +94,7 @@ export default function CardsPage() {
     return grouped;
   }, [cards]);
 
-  const requestAvailability = useMemo(() => {
-    return requestTypes.map((item) => {
-      const existing = (cardsByType[item.key] || []).some((card) =>
-        ["pending", "approved"].includes(card.status)
-      );
-      return { ...item, blocked: existing };
-    });
-  }, [cardsByType]);
+  const requestAvailability = requestTypes;
 
   const primaryCards = useMemo(() => {
     return requestTypes
@@ -124,6 +123,36 @@ export default function CardsPage() {
     navigate("/", { replace: true });
   };
 
+  const deleteCard = async () => {
+    if (!deleteTarget?.id) return;
+    try {
+      setDeleting(true);
+      const res = await axiosInstance.delete(`/user/atm-card-info/${deleteTarget.id}`);
+      notify(res.data?.message || "Card deleted successfully.", "success", "Card deleted");
+      setDeleteTarget(null);
+      await loadPage();
+      setActiveIndex((current) => Math.max(0, Math.min(current, Math.max(primaryCards.length - 2, 0))));
+    } catch (error) {
+      notify(error?.response?.data?.error || "Failed to delete card.", "error", "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const nextCard = () => setActiveIndex((current) => Math.min(current + 1, Math.max(primaryCards.length - 1, 0)));
+  const prevCard = () => setActiveIndex((current) => Math.max(current - 1, 0));
+  const onSwipeEnd = (endX) => {
+    if (touchStartX === null) return;
+    const delta = touchStartX - endX;
+    if (Math.abs(delta) < 40) {
+      setTouchStartX(null);
+      return;
+    }
+    if (delta > 0) nextCard();
+    if (delta < 0) prevCard();
+    setTouchStartX(null);
+  };
+
   return (
     <main className={styles.page}>
       <section className={styles.shell}>
@@ -149,11 +178,7 @@ export default function CardsPage() {
           <div>
             <span className={styles.eyebrow}>Card centre</span>
             <h2>Manage your debit cards</h2>
-            <p>Request a new card for your Savings or Current account and track approval status.</p>
-          </div>
-          <div className={styles.heroMeta}>
-            <FiShield />
-            <span>Admin approval required</span>
+            <p>Request ATM cards for your Savings or Current account and manage the cards already on your profile.</p>
           </div>
         </section>
 
@@ -166,46 +191,93 @@ export default function CardsPage() {
           <>
             <section className={styles.cardDeck}>
               {primaryCards.length ? (
-                primaryCards.map((card) => (
-                  <article className={styles.bankCard} key={`${card.account_type}-${card.card_number}`}>
-                    <div className={styles.cardWorld} />
-                    <div className={styles.cardInner}>
-                      <header className={styles.bankCardHeader}>
-                        <div className={styles.bankBrand}>
-                          <div className={styles.bankLogoMark}>
-                            <span>{bankName.slice(0, 2).toUpperCase()}</span>
-                          </div>
-                          <div>
-                            <strong>{bankName}</strong>
-                            <small>{card.account_type === "savings" ? "Savings Debit" : "Current Debit"}</small>
-                          </div>
-                        </div>
-                        <span className={`${styles.cardStatus} ${styles[`cardStatus${card.status}`] || ""}`}>
-                          {statusLabel[card.status] || card.status}
-                        </span>
-                      </header>
-
-                      <div className={styles.cardChip} />
-                      <div className={styles.cardNumber}>{card.status === "approved" ? formatCardNumber(card.card_number) : maskCardNumber(card.card_number)}</div>
-
-                      <footer className={styles.bankCardFooter}>
-                        <div>
-                          <span>Card holder</span>
-                          <strong>{card.card_holder_name || displayName}</strong>
-                        </div>
-                        <div>
-                          <span>Expires</span>
-                          <strong>{card.expiry_date || "--/--"}</strong>
-                        </div>
-                      </footer>
+                <>
+                  <div className={styles.cardSliderControls}>
+                    <button type="button" onClick={prevCard} disabled={activeIndex === 0} aria-label="Previous card">
+                      <FiChevronLeft />
+                    </button>
+                    <div className={styles.cardSliderDots}>
+                      {primaryCards.map((card, index) => (
+                        <button
+                          type="button"
+                          key={`${card.account_type}-${index}`}
+                          className={index === activeIndex ? styles.cardSliderDotActive : ""}
+                          onClick={() => setActiveIndex(index)}
+                          aria-label={`Go to card ${index + 1}`}
+                        />
+                      ))}
                     </div>
-                  </article>
-                ))
+                    <button
+                      type="button"
+                      onClick={nextCard}
+                      disabled={activeIndex === primaryCards.length - 1}
+                      aria-label="Next card"
+                    >
+                      <FiChevronRight />
+                    </button>
+                  </div>
+
+                  <div className={styles.cardViewport}>
+                    <div
+                      className={styles.cardTrack}
+                      style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+                      onTouchStart={(event) => setTouchStartX(event.touches[0].clientX)}
+                      onTouchEnd={(event) => onSwipeEnd(event.changedTouches[0].clientX)}
+                    >
+                      {primaryCards.map((card) => (
+                        <article className={styles.bankCard} key={`${card.account_type}-${card.card_number}`}>
+                          <div className={styles.creditCardWrap}>
+                            <div className={styles.cardWorldMap} />
+                            <div className={styles.cardInner}>
+                              <header className={styles.bankCardHeader}>
+                                <div className={styles.bankBrand}>
+                                  <div className={styles.bankLogoMark}>
+                                    <span>{bankName.slice(0, 2).toUpperCase()}</span>
+                                  </div>
+                                  <div>
+                                    <strong>{bankName}</strong>
+                                    <small>{card.account_type === "savings" ? "Savings Debit" : "Current Debit"}</small>
+                                  </div>
+                                </div>
+                                <span className={`${styles.cardStatus} ${styles[`cardStatus${card.status}`] || ""}`}>
+                                  {statusLabel[card.status] || card.status}
+                                </span>
+                              </header>
+
+                              <div className={styles.cardChip} />
+                              <div className={styles.cardNumberMeta}>
+                                <div className={styles.cardNumber} data-text={card.card_number?.slice(0, 4) || "4716"}>
+                                  {card.status === "approved" ? formatCardNumber(card.card_number) : maskCardNumber(card.card_number)}
+                                </div>
+                              </div>
+
+                              <footer className={styles.bankCardFooter}>
+                                <div className={styles.bankCardFooterLeft}>
+                                  <div className={styles.cardDateBlock}>
+                                    <span>Expires End</span>
+                                    <strong>{card.expiry_date || "--/--"}</strong>
+                                  </div>
+                                  <div className={styles.cardHolderName}>
+                                    {card.card_holder_name || displayName}
+                                  </div>
+                                </div>
+                                <div className={styles.cardBrandMark}>
+                                  <span />
+                                  <span />
+                                </div>
+                              </footer>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </>
               ) : (
                 <article className={styles.cardPlaceholder}>
                   <FiCreditCard />
                   <strong>No card issued yet</strong>
-                  <p>Request a card below. The request will remain pending until an admin approves it.</p>
+                  <p>Request a card below and it will appear here once it is created.</p>
                 </article>
               )}
             </section>
@@ -220,10 +292,10 @@ export default function CardsPage() {
                   </div>
                   <button
                     type="button"
-                    disabled={item.blocked || submittingType === item.key}
+                    disabled={submittingType === item.key}
                     onClick={() => requestCard(item.key)}
                   >
-                    {submittingType === item.key ? "Submitting..." : item.blocked ? "Already requested" : "Request card"}
+                    {submittingType === item.key ? "Submitting..." : "Request ATM card"}
                   </button>
                 </article>
               ))}
@@ -254,6 +326,14 @@ export default function CardsPage() {
                         <b>{currencySign}{Number(card.fee || 0).toFixed(2)}</b>
                         <small>{statusLabel[card.status] || card.status}</small>
                       </div>
+                      <button
+                        type="button"
+                        className={styles.rowDeleteButton}
+                        onClick={() => setDeleteTarget(card)}
+                        aria-label="Delete card"
+                      >
+                        <FiTrash2 />
+                      </button>
                     </article>
                   ))}
                 </div>
@@ -265,6 +345,25 @@ export default function CardsPage() {
 
       <MobileFooterNav />
       <GlassToast toasts={toasts} onDismiss={dismissToast} />
+      {deleteTarget ? (
+        <div className={styles.confirmOverlay} onClick={() => !deleting && setDeleteTarget(null)}>
+          <div className={styles.confirmCard} onClick={(event) => event.stopPropagation()}>
+            <h3>Delete this card?</h3>
+            <p>
+              This will remove the selected {deleteTarget.account_type} card from your profile.
+              Make sure you want to continue.
+            </p>
+            <div className={styles.confirmActions}>
+              <button type="button" className={styles.secondaryButton} onClick={() => setDeleteTarget(null)} disabled={deleting}>
+                Cancel
+              </button>
+              <button type="button" className={styles.dangerButton} onClick={deleteCard} disabled={deleting}>
+                {deleting ? "Deleting..." : "Yes, delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <UserSettingsDrawer
         open={settingsOpen}
         user={profile}

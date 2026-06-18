@@ -141,11 +141,66 @@
 
 .cardDeck {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
+}
+
+.cardSliderControls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cardSliderControls button {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card-bg);
+  color: var(--text);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.cardSliderControls button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cardSliderDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cardSliderDots button {
+  width: 10px;
+  height: 10px;
+  min-height: 10px;
+  border-radius: 999px;
+  border: 0;
+  padding: 0;
+  background: rgba(148, 163, 184, 0.42);
+}
+
+.cardSliderDotActive {
+  width: 28px !important;
+  background: linear-gradient(135deg, #2563eb, #0f62fe) !important;
+}
+
+.cardViewport {
+  overflow: hidden;
+}
+
+.cardTrack {
+  display: flex;
+  transition: transform 0.35s ease;
 }
 
 .bankCard {
+  width: 100%;
+  flex: 0 0 100%;
   position: relative;
   min-height: 274px;
   overflow: hidden;
@@ -158,14 +213,36 @@
   background: linear-gradient(135deg, #351744 0%, #6a3cc7 44%, #54a6ff 100%);
 }
 
-.cardWorld {
+.creditCardWrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.cardWorldMap {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 0% 50%, rgba(255, 255, 255, 0) 10px, rgba(255, 255, 255, 0.12) 11px, rgba(255, 255, 255, 0) 12px) 0 12px/22px 22px,
-    radial-gradient(circle at 100% 100%, rgba(255, 255, 255, 0) 10px, rgba(255, 255, 255, 0.16) 11px, rgba(255, 255, 255, 0) 12px),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.15));
-  opacity: 0.8;
+    radial-gradient(circle at 0% 50%, rgba(96, 16, 48, 0) 9px, rgba(255, 255, 255, 0.15) 10px, rgba(96, 16, 48, 0) 11px) 0 10px/20px 20px,
+    radial-gradient(circle at 100% 100%, rgba(96, 16, 48, 0) 9px, rgba(255, 255, 255, 0.16) 10px, rgba(96, 16, 48, 0) 11px),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(255, 255, 255, 0.04));
+}
+
+.cardWorldMap::before {
+  content: "";
+  position: absolute;
+  inset: 12% 8%;
+  opacity: 0.18;
+  background:
+    radial-gradient(ellipse at 18% 34%, rgba(255, 255, 255, 0.9) 0 18%, transparent 19%),
+    radial-gradient(ellipse at 34% 26%, rgba(255, 255, 255, 0.9) 0 14%, transparent 15%),
+    radial-gradient(ellipse at 54% 36%, rgba(255, 255, 255, 0.9) 0 16%, transparent 17%),
+    radial-gradient(ellipse at 74% 28%, rgba(255, 255, 255, 0.9) 0 13%, transparent 14%),
+    radial-gradient(ellipse at 82% 58%, rgba(255, 255, 255, 0.9) 0 11%, transparent 12%),
+    radial-gradient(ellipse at 30% 62%, rgba(255, 255, 255, 0.9) 0 14%, transparent 15%);
+  filter: blur(10px);
 }
 
 .cardInner {
@@ -193,17 +270,18 @@
 .bankLogoMark {
   width: 42px;
   height: 42px;
-  border-radius: 18px 10px 18px 18px;
+  border-radius: 40px 0 40px 40px;
   transform: rotate(-45deg);
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: #dc143c;
+  box-shadow: -2px 2px 0 rgba(255, 255, 255, 0.8);
   display: grid;
   place-items: center;
 }
 
 .bankLogoMark span {
   transform: rotate(45deg);
-  font-size: 11px;
+  color: #d4d4d8;
+  font-size: 12px;
   font-weight: 900;
 }
 
@@ -252,7 +330,26 @@
   letter-spacing: 2px;
   font-weight: 500;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  text-shadow: -1px -1px 0 rgba(255, 255, 255, 0.16), 1px 1px 0 rgba(0, 0, 0, 0.34);
+  text-align: center;
+  position: relative;
+  white-space: nowrap;
+  text-shadow: -1px -1px 0 rgba(255, 255, 255, 0.3), 1px 1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.cardNumberMeta {
+  margin-bottom: 22px;
+}
+
+.cardNumber::before {
+  content: attr(data-text);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-family: inherit;
 }
 
 .bankCardFooter {
@@ -261,21 +358,72 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
+  align-items: flex-end;
 }
 
-.bankCardFooter span,
-.bankCardFooter strong {
-  display: block;
+.bankCardFooterLeft {
+  width: 70%;
 }
 
-.bankCardFooter span {
-  color: rgba(255, 255, 255, 0.75);
+.cardDateBlock,
+.cardHolderName {
+  color: #fff;
+}
+
+.cardDateBlock {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.cardDateBlock span {
+  width: 58px;
+  color: #deb887;
   font-size: 12px;
+  line-height: 1.15;
+  text-align: right;
   text-transform: uppercase;
 }
 
+.cardDateBlock strong {
+  position: relative;
+  top: -2px;
+}
+
+.cardHolderName {
+  padding-top: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.cardBrandMark {
+  width: 88px;
+  height: 42px;
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.cardBrandMark span {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  top: 4px;
+  backdrop-filter: blur(2px);
+}
+
+.cardBrandMark span:first-child {
+  right: 22px;
+  background: rgba(239, 68, 68, 0.82);
+}
+
+.cardBrandMark span:last-child {
+  right: 0;
+  background: rgba(251, 191, 36, 0.82);
+}
+
 .bankCardFooter strong {
-  margin-top: 6px;
+  display: block;
 }
 
 .cardPlaceholder {
@@ -338,6 +486,37 @@
   background: linear-gradient(135deg, #2563eb, #0f62fe);
 }
 
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  min-height: 46px;
+  border: 0;
+  border-radius: 16px;
+  padding: 0 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.primaryButton {
+  color: white;
+  background: linear-gradient(135deg, #2563eb, #0f62fe);
+}
+
+.secondaryButton {
+  color: var(--text);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.dangerButton {
+  color: white;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
 .actionGlassCard button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -397,6 +576,18 @@
 
 .rowRight {
   text-align: right;
+}
+
+.rowDeleteButton {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(248, 113, 113, 0.24);
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
 }
 
 .summaryGrid {
@@ -567,6 +758,165 @@
   padding: 20px 0;
 }
 
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(7, 17, 31, 0.34);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.confirmCard {
+  width: min(100%, 420px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: var(--card-bg);
+  box-shadow: var(--soft-shadow);
+  padding: 22px;
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+}
+
+.confirmCard h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.confirmCard p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.confirmActions {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gridSupport {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 16px;
+}
+
+.formStack,
+.replyForm {
+  display: grid;
+  gap: 14px;
+}
+
+.formStack label,
+.replyForm label {
+  display: grid;
+  gap: 7px;
+  color: var(--text-soft);
+  font-weight: 800;
+}
+
+.formStack input,
+.formStack textarea,
+.replyForm textarea {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.44);
+  color: var(--text);
+  padding: 0 14px;
+  outline: none;
+}
+
+.formStack textarea,
+.replyForm textarea {
+  min-height: 124px;
+  padding: 14px;
+  resize: vertical;
+  font: inherit;
+}
+
+[data-theme="dark"] .formStack input,
+[data-theme="dark"] .formStack textarea,
+[data-theme="dark"] .replyForm textarea,
+[data-theme="dark"] .secondaryButton {
+  background: rgba(15, 23, 42, 0.46);
+}
+
+.ticketButton {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.42);
+  padding: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  text-align: left;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.ticketButtonActive {
+  border-color: rgba(37, 99, 235, 0.28);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.ticketStatus {
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
+  text-transform: capitalize;
+}
+
+.messageThread {
+  display: grid;
+  gap: 12px;
+}
+
+.messageBubble {
+  max-width: min(100%, 720px);
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.messageBubble strong,
+.messageBubble p,
+.messageBubble small {
+  display: block;
+}
+
+.messageBubble p {
+  margin: 8px 0 0;
+  line-height: 1.55;
+}
+
+.messageBubble small {
+  margin-top: 10px;
+  color: var(--text-soft);
+}
+
+.messageBubbleUser {
+  margin-left: auto;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.messageBubbleAdmin {
+  margin-right: auto;
+  background: rgba(255, 255, 255, 0.42);
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -574,9 +924,9 @@
 }
 
 @media (max-width: 920px) {
-  .cardDeck,
   .gridTwo,
-  .summaryGrid {
+  .summaryGrid,
+  .gridSupport {
     grid-template-columns: 1fr;
   }
 }
@@ -602,11 +952,15 @@
   }
 
   .statementRow {
-    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-columns: 44px minmax(0, 1fr) auto;
   }
 
   .rowRight {
     grid-column: 2;
     text-align: left;
+  }
+
+  .confirmActions {
+    grid-template-columns: 1fr;
   }
 }

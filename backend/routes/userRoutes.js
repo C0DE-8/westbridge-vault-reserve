@@ -2248,6 +2248,62 @@ router.get('/:ticket_id/messages', authenticateToken, async (req, res) => {
   }
 });
 
+// ✅ USER CLOSE OWN TICKET
+router.put('/tickets/:ticket_id/close', authenticateToken, async (req, res) => {
+  const { ticket_id } = req.params;
+  const user_id = req.user.id;
+
+  try {
+    const [[ticket]] = await db.promise().query(
+      'SELECT * FROM support_tickets WHERE id = ? AND user_id = ?',
+      [ticket_id, user_id]
+    );
+
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    await db.promise().query(
+      'UPDATE support_tickets SET status = "closed" WHERE id = ?',
+      [ticket_id]
+    );
+
+    res.json({ message: 'Ticket closed successfully' });
+  } catch (error) {
+    console.error('❌ Error closing ticket:', error);
+    res.status(500).json({ error: 'Server error closing ticket' });
+  }
+});
+
+// 🗑️ USER DELETE OWN ATM CARD
+router.delete('/atm-card-info/:card_id', authenticateToken, async (req, res) => {
+  const { card_id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const [[card]] = await db.promise().query(
+      'SELECT * FROM atm_cards WHERE id = ? AND user_id = ?',
+      [card_id, userId]
+    );
+
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+
+    await db.promise().query(
+      'DELETE FROM atm_cards WHERE id = ? AND user_id = ?',
+      [card_id, userId]
+    );
+
+    await logActivity(userId, 'atm_card_deleted', `Deleted ATM card request/card for ${card.account_type} account`);
+
+    res.json({ message: 'Card deleted successfully' });
+  } catch (error) {
+    console.error('❌ Card delete error:', error);
+    res.status(500).json({ error: 'Failed to delete card' });
+  }
+});
+
 
 // User submits a deposit with proof of payment 🧾 POST /user/deposit
 router.post('/deposit', authenticateToken, proofupload.single('proof'), async (req, res) => {
