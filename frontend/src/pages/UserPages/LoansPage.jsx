@@ -4,6 +4,7 @@ import { FiArrowLeft, FiCheckCircle, FiDollarSign, FiSettings } from "react-icon
 import axiosInstance from "../../api/axios";
 import MobileFooterNav from "../../components/Dashboard/MobileFooterNav";
 import UserSettingsDrawer from "../../components/Dashboard/UserSettingsDrawer";
+import CustomSelect from "../../components/Form/CustomSelect";
 import GlassToast, { useGlassToast } from "../../components/Toast/GlassToast";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -159,17 +160,25 @@ export default function LoansPage() {
             </label>
             <label>
               Gender
-              <select value={form.gender} onChange={(e) => setForm((c) => ({ ...c, gender: e.target.value }))} required>
-                <option value="">Select gender</option>
-                {genderOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
+              <CustomSelect
+                value={form.gender}
+                options={[
+                  { value: "", label: "Select gender" },
+                  ...genderOptions.map((item) => ({ value: item, label: item })),
+                ]}
+                onChange={(value) => setForm((c) => ({ ...c, gender: value }))}
+              />
             </label>
             <label>
               Marital status
-              <select value={form.marital_status} onChange={(e) => setForm((c) => ({ ...c, marital_status: e.target.value }))} required>
-                <option value="">Select marital status</option>
-                {maritalOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
+              <CustomSelect
+                value={form.marital_status}
+                options={[
+                  { value: "", label: "Select marital status" },
+                  ...maritalOptions.map((item) => ({ value: item, label: item })),
+                ]}
+                onChange={(value) => setForm((c) => ({ ...c, marital_status: value }))}
+              />
             </label>
             <label>
               Email
@@ -201,10 +210,14 @@ export default function LoansPage() {
             </label>
             <label>
               Loan / credit service
-              <select value={form.loan_service} onChange={(e) => setForm((c) => ({ ...c, loan_service: e.target.value }))} required>
-                <option value="">Select loan service</option>
-                {loanServiceOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
+              <CustomSelect
+                value={form.loan_service}
+                options={[
+                  { value: "", label: "Select loan service" },
+                  ...loanServiceOptions.map((item) => ({ value: item, label: item })),
+                ]}
+                onChange={(value) => setForm((c) => ({ ...c, loan_service: value }))}
+              />
             </label>
             <label>
               Loan amount
@@ -212,10 +225,14 @@ export default function LoansPage() {
             </label>
             <label>
               Payment tenure
-              <select value={form.payment_tenure} onChange={(e) => setForm((c) => ({ ...c, payment_tenure: e.target.value }))} required>
-                <option value="">Select payment tenure</option>
-                {tenureOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
+              <CustomSelect
+                value={form.payment_tenure}
+                options={[
+                  { value: "", label: "Select payment tenure" },
+                  ...tenureOptions.map((item) => ({ value: item, label: item })),
+                ]}
+                onChange={(value) => setForm((c) => ({ ...c, payment_tenure: value }))}
+              />
             </label>
             <label>
               Loan purpose
