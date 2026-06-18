@@ -23,6 +23,7 @@ const filters = [
   { key: "outflow", label: "Outflow" },
   { key: "bills", label: "Bills" },
 ];
+const ITEMS_PER_PAGE = 8;
 
 export default function StatementsPage() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export default function StatementsPage() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const displayName = profile?.full_name || profile?.username || "User";
   const currencySign = profile?.currency_sign || "$";
@@ -153,6 +155,10 @@ export default function StatementsPage() {
     return events;
   }, [activeFilter, events]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeFilter]);
+
   const summary = useMemo(() => {
     return events.reduce(
       (acc, item) => {
@@ -175,6 +181,46 @@ export default function StatementsPage() {
     ];
     const max = Math.max(...groups.map((item) => item.value), 1);
     return groups.map((item) => ({ ...item, width: `${(item.value / max) * 100}%` }));
+  }, [summary]);
+
+  const circleSegments = useMemo(() => {
+    const groups = [
+      { key: "Deposits", value: summary.inflow, tone: "var(--chart-blue)" },
+      { key: "Transfers out", value: summary.outflow, tone: "var(--chart-red)" },
+      { key: "Bills", value: summary.bills, tone: "var(--chart-violet)" },
+      { key: "Internal", value: summary.internal, tone: "var(--chart-teal)" },
+    ].filter((item) => item.value > 0);
+
+    const total = groups.reduce((sum, item) => sum + item.value, 0);
+    if (!total) {
+      return {
+        total,
+        css: "conic-gradient(rgba(148, 163, 184, 0.18) 0deg 360deg)",
+        legend: [],
+      };
+    }
+
+    let start = 0;
+    const legend = groups.map((item) => {
+      const percent = (item.value / total) * 100;
+      const degrees = (item.value / total) * 360;
+      const segment = {
+        ...item,
+        percent,
+        start,
+        end: start + degrees,
+      };
+      start += degrees;
+      return segment;
+    });
+
+    return {
+      total,
+      css: `conic-gradient(${legend
+        .map((item) => `${item.tone} ${item.start}deg ${item.end}deg`)
+        .join(", ")})`,
+      legend,
+    };
   }, [summary]);
 
   const monthly = useMemo(() => {
@@ -202,6 +248,18 @@ export default function StatementsPage() {
       outflowHeight: `${(item.outflow / max) * 100}%`,
     }));
   }, [events]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredEvents.length / ITEMS_PER_PAGE));
+  const paginatedEvents = useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredEvents.slice(start, start + ITEMS_PER_PAGE);
+  }, [currentPage, filteredEvents]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const handleLogout = () => {
     logout("user");
@@ -299,18 +357,40 @@ export default function StatementsPage() {
                     <p>How activity is distributed across transaction types.</p>
                   </div>
                 </div>
-                <div className={styles.barList}>
-                  {bars.map((item) => (
-                    <div className={styles.barRow} key={item.key}>
-                      <div className={styles.barCopy}>
-                        <strong>{item.key}</strong>
-                        <small>{formatMoney(item.value)}</small>
-                      </div>
-                      <div className={styles.barTrack}>
-                        <span className={`${styles.barFill} ${styles[`barFill${item.tone}`]}`} style={{ width: item.width }} />
+                <div className={styles.circleSummary}>
+                  <div className={styles.circleChartWrap}>
+                    <div
+                      className={styles.circleChart}
+                      style={{ "--circle-chart": circleSegments.css }}
+                    >
+                      <div className={styles.circleChartInner}>
+                        <strong>{events.length}</strong>
+                        <small>Entries</small>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                  <div className={styles.barList}>
+                    {bars.map((item) => (
+                      <div className={styles.barRow} key={item.key}>
+                        <div className={styles.barCopy}>
+                          <strong>{item.key}</strong>
+                          <small>{formatMoney(item.value)}</small>
+                        </div>
+                        <div className={styles.barTrack}>
+                          <span className={`${styles.barFill} ${styles[`barFill${item.tone}`]}`} style={{ width: item.width }} />
+                        </div>
+                      </div>
+                    ))}
+                    <div className={styles.circleLegend}>
+                      {circleSegments.legend.map((item) => (
+                        <div className={styles.circleLegendRow} key={item.key}>
+                          <span className={styles.circleLegendDot} style={{ "--legend-color": item.tone }} />
+                          <strong>{item.key}</strong>
+                          <small>{item.percent.toFixed(0)}%</small>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </article>
             </section>
@@ -338,33 +418,55 @@ export default function StatementsPage() {
               {filteredEvents.length === 0 ? (
                 <p className={styles.empty}>No entries in this view.</p>
               ) : (
-                <div className={styles.listStack}>
-                  {filteredEvents.map((item) => (
-                    <article className={styles.statementRow} key={item.id}>
-                      <span className={styles.statementIcon}>
-                        {item.direction === "inflow" ? (
-                          <FiArrowDownRight />
-                        ) : item.direction === "internal" ? (
-                          <FiRefreshCcw />
-                        ) : item.category === "bill" ? (
-                          <FiCreditCard />
-                        ) : (
-                          <FiArrowUpRight />
-                        )}
-                      </span>
-                      <div>
-                        <strong>{item.title}</strong>
-                        <small>{item.subtitle} • {item.date}</small>
-                      </div>
-                      <div className={styles.rowRight}>
-                        <b className={item.direction === "inflow" ? styles.amountPositive : item.direction === "outflow" ? styles.amountNegative : ""}>
-                          {item.direction === "outflow" ? "-" : item.direction === "inflow" ? "+" : ""}{formatMoney(item.amount)}
-                        </b>
-                        <small>{item.status}</small>
-                      </div>
-                    </article>
-                  ))}
-                </div>
+                <>
+                  <div className={styles.listStack}>
+                    {paginatedEvents.map((item) => (
+                      <article className={styles.statementRow} key={item.id}>
+                        <span className={styles.statementIcon}>
+                          {item.direction === "inflow" ? (
+                            <FiArrowDownRight />
+                          ) : item.direction === "internal" ? (
+                            <FiRefreshCcw />
+                          ) : item.category === "bill" ? (
+                            <FiCreditCard />
+                          ) : (
+                            <FiArrowUpRight />
+                          )}
+                        </span>
+                        <div>
+                          <strong>{item.title}</strong>
+                          <small>{item.subtitle} • {item.date}</small>
+                        </div>
+                        <div className={styles.rowRight}>
+                          <b className={item.direction === "inflow" ? styles.amountPositive : item.direction === "outflow" ? styles.amountNegative : ""}>
+                            {item.direction === "outflow" ? "-" : item.direction === "inflow" ? "+" : ""}{formatMoney(item.amount)}
+                          </b>
+                          <small>{item.status}</small>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+
+                  {totalPages > 1 ? (
+                    <div className={styles.pagination}>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                        disabled={currentPage === 1}
+                      >
+                        Previous
+                      </button>
+                      <span>Page {currentPage} of {totalPages}</span>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                        disabled={currentPage === totalPages}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  ) : null}
+                </>
               )}
             </section>
           </>
