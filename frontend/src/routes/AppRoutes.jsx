@@ -10,6 +10,7 @@ import AdminTickets from "../pages/Admin/pages/AdminTickets";
 import AdminTransfers from "../pages/Admin/pages/AdminTransfers";
 import AdminUsers from "../pages/Admin/pages/AdminUsers";
 import AdminWallets from "../pages/Admin/pages/AdminWallets";
+import AdminBillPayments from "../pages/Admin/pages/AdminBillPayments";
 import VerifyLoginOTP from "../pages/VerifyLoginOTP/VerifyLoginOTP";
 import UserPage from "../pages/UserPages/UserPage";
 import TransactionsPage from "../pages/UserPages/TransactionsPage";
@@ -18,6 +19,7 @@ import ConvertPage from "../pages/UserPages/ConvertPage";
 import ProfilePage from "../pages/UserPages/ProfilePage";
 import TransferDetailPage from "../pages/UserPages/TransferDetailPage";
 import FundingPage from "../pages/UserPages/FundingPage";
+import BillsAirtimePage from "../pages/UserPages/BillsAirtimePage";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import PublicRoute from "../components/PublicRoute/PublicRoute";
 
@@ -149,7 +151,7 @@ export default function AppRoutes() {
           path="/bills-airtime"
           element={
             <ProtectedRoute allowedRoles={["user"]}>
-              <UserPage type="more" title="Bills & Airtime" description="Pay utility bills and airtime purchases from your bank accounts." />
+              <BillsAirtimePage />
             </ProtectedRoute>
           }
         />
@@ -185,6 +187,7 @@ export default function AppRoutes() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="transfers" element={<AdminTransfers />} />
           <Route path="deposits" element={<AdminDeposits />} />
+          <Route path="bill-payments" element={<AdminBillPayments />} />
           <Route path="tickets" element={<AdminTickets />} />
           <Route path="wallets" element={<AdminWallets />} />
           <Route path="settings" element={<AdminSettings />} />

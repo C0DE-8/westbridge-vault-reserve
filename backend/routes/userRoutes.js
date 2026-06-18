@@ -1957,6 +1957,115 @@ router.get('/wallets', authenticateToken, async (req, res) => {
   }
 });
 
+// 🔌 Submit a bill or airtime payment request (admin confirmation required)
+router.post('/bill-payments', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      payment_kind = 'bill',
+      bill_category = 'electricity',
+      provider_name,
+      customer_reference,
+      from_account = 'current',
+      amount,
+      note = '',
+      pin,
+    } = req.body || {};
+
+    const amountNum = Number(amount);
+    const allowedKinds = new Set(['bill', 'airtime']);
+    const allowedCategories = new Set([
+      'water',
+      'electricity',
+      'gas',
+      'internet',
+      'cable',
+      'phone',
+      'tax',
+      'insurance',
+      'waste',
+      'hoa',
+      'tuition',
+      'mortgage',
+    ]);
+
+    if (!allowedKinds.has(payment_kind)) {
+      return res.status(400).json({ error: 'Invalid payment_kind' });
+    }
+
+    if (!allowedCategories.has(bill_category)) {
+      return res.status(400).json({ error: 'Invalid bill_category' });
+    }
+
+    if (!['savings', 'current'].includes(from_account)) {
+      return res.status(400).json({ error: 'Invalid from_account' });
+    }
+
+    if (!provider_name || !customer_reference || !Number.isFinite(amountNum) || amountNum <= 0 || !pin) {
+      return res.status(400).json({ error: 'provider_name, customer_reference, pin, and valid amount are required' });
+    }
+
+    const [[user]] = await db.promise().query(
+      'SELECT transaction_pin FROM users WHERE id = ? LIMIT 1',
+      [userId]
+    );
+
+    if (!user?.transaction_pin) {
+      return res.status(400).json({ error: 'Set your transaction PIN before submitting bill payments' });
+    }
+
+    if (String(user.transaction_pin) !== String(pin)) {
+      return res.status(401).json({ error: 'Invalid transaction PIN' });
+    }
+
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const [result] = await db.promise().query(
+      `INSERT INTO bill_payments
+        (user_id, payment_kind, bill_category, provider_name, customer_reference, from_account, amount, note, status, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+      [userId, payment_kind, bill_category, provider_name, customer_reference, from_account, amountNum, note || null, createdAt]
+    );
+
+    res.json({
+      message: 'Payment request submitted and awaiting admin confirmation',
+      payment_id: result.insertId,
+    });
+  } catch (error) {
+    console.error('❌ Bill payment request error:', error);
+    res.status(500).json({ error: 'Failed to submit bill payment request' });
+  }
+});
+
+// 📜 Get bill and airtime payment history for the logged-in user
+router.get('/bill-payments', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const [rows] = await db.promise().query(
+      'SELECT * FROM bill_payments WHERE user_id = ? ORDER BY id DESC',
+      [userId]
+    );
+
+    const payments = rows.map((row) => ({
+      id: row.id,
+      payment_kind: row.payment_kind,
+      bill_category: row.bill_category,
+      provider_name: row.provider_name,
+      customer_reference: row.customer_reference,
+      from_account: row.from_account,
+      amount: row.amount,
+      note: row.note || '',
+      status: row.status,
+      created_at: row.created_at,
+      reviewed_at: row.reviewed_at,
+    }));
+
+    res.json({ payments });
+  } catch (error) {
+    console.error('❌ Fetch bill payments error:', error);
+    res.status(500).json({ error: 'Failed to fetch bill payments' });
+  }
+});
+
 
 // 🧾 CREATE TICKET
 router.post('/create', authenticateToken, async (req, res) => {

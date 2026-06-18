@@ -195,6 +195,12 @@
   color: var(--primary);
 }
 
+.transactionImageIcon {
+  background-size: 400% 400%;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.66);
+}
+
 .transactionItem strong,
 .transactionItem small {
   display: block;
@@ -212,10 +218,243 @@
   white-space: nowrap;
 }
 
+.historyAside {
+  text-align: right;
+}
+
+.historyAside b,
+.historyAside small {
+  display: block;
+}
+
+.historyAside small {
+  margin-top: 4px;
+  color: var(--text-soft);
+  text-transform: capitalize;
+}
+
 .empty {
   color: var(--text-soft);
   text-align: center;
   padding: 28px 0;
+}
+
+.servicePreviewCard {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(15, 98, 254, 0.08), rgba(255, 255, 255, 0) 42%),
+    var(--card-gradient);
+  box-shadow: 0 18px 36px rgba(16, 24, 40, 0.08);
+  padding: 16px;
+}
+
+.servicePreviewArt,
+.serviceTileArt,
+.transactionImageIcon {
+  background-image: var(--sheet-image);
+  background-repeat: no-repeat;
+  background-color: rgba(255, 255, 255, 0.38);
+}
+
+.servicePreviewArt {
+  width: 82px;
+  height: 82px;
+  border-radius: 18px;
+  background-size: 400% 400%;
+  border: 1px solid rgba(255, 255, 255, 0.66);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), 0 12px 28px rgba(16, 24, 40, 0.08);
+}
+
+.servicePreviewCard span,
+.servicePreviewCard strong,
+.servicePreviewCard small {
+  display: block;
+}
+
+.servicePreviewCard span {
+  color: var(--text-soft);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.servicePreviewCard strong {
+  font-size: 16px;
+}
+
+.servicePreviewCard small {
+  color: var(--text-soft);
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.imagePickerGroup {
+  display: grid;
+  gap: 10px;
+}
+
+.pickerLabel {
+  color: var(--text-soft);
+  font-weight: 800;
+}
+
+.imagePickerGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.imagePickerGridTight {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.imagePickerCard {
+  min-width: 0;
+  min-height: 116px;
+  border: 1px solid rgba(226, 232, 240, 0.82);
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.58), transparent 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.68), rgba(246, 250, 255, 0.32));
+  padding: 9px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  justify-items: start;
+  color: var(--text);
+  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.06);
+  backdrop-filter: blur(16px) saturate(145%);
+  -webkit-backdrop-filter: blur(16px) saturate(145%);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.imagePickerCard strong {
+  font-size: 12px;
+  line-height: 1.25;
+  text-align: left;
+}
+
+[data-theme="dark"] .imagePickerCard {
+  border-color: rgba(148, 163, 184, 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(148, 163, 184, 0.16), transparent 42%),
+    linear-gradient(145deg, rgba(15, 26, 43, 0.68), rgba(10, 21, 36, 0.42));
+  box-shadow: 0 16px 28px rgba(2, 6, 23, 0.28);
+}
+
+.imagePickerCard:active {
+  transform: scale(0.985);
+}
+
+.imagePickerCardActive {
+  border-color: rgba(255, 255, 255, 0.92);
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(239, 246, 255, 0.44));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 18px 32px rgba(16, 24, 40, 0.08);
+}
+
+[data-theme="dark"] .imagePickerCardActive {
+  border-color: rgba(96, 165, 250, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 42%),
+    linear-gradient(145deg, rgba(17, 33, 56, 0.8), rgba(10, 21, 36, 0.5));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 20px 34px rgba(2, 6, 23, 0.34);
+}
+
+.serviceTileArt {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  background-size: 400% 400%;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+}
+
+.viewToggle {
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(15, 98, 254, 0.08), rgba(255, 255, 255, 0.04)),
+    rgba(255, 255, 255, 0.46);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.viewToggle button {
+  width: 42px;
+  height: 42px;
+  min-height: 42px;
+  padding: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-soft);
+}
+
+.viewToggle button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.viewToggleActive {
+  background:
+    linear-gradient(135deg, rgba(15, 98, 254, 0.18), rgba(15, 98, 254, 0.08)),
+    rgba(255, 255, 255, 0.6) !important;
+  color: var(--primary) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.transactionListGlass {
+  gap: 12px;
+}
+
+.transactionCardGlass,
+.transactionCardGrid {
+  background:
+    linear-gradient(135deg, rgba(15, 98, 254, 0.07), rgba(255, 255, 255, 0.03) 44%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.54), rgba(246, 250, 255, 0.24));
+  border: 1px solid rgba(226, 232, 240, 0.76);
+  box-shadow: 0 16px 28px rgba(16, 24, 40, 0.06);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+}
+
+.transactionGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.transactionCardGrid {
+  grid-template-columns: 1fr;
+  justify-items: start;
+  text-align: left;
+  gap: 10px;
+}
+
+.transactionCardGrid .transactionIcon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+}
+
+.transactionCardGrid .historyAside {
+  text-align: left;
+}
+
+.transactionCardGrid .transactionItem small,
+.transactionCardGrid .historyAside small {
+  white-space: normal;
 }
 
 .formGrid {
@@ -463,6 +702,82 @@
   pointer-events: none;
 }
 
+.billArtWater {
+  background-position: 0% 0%;
+}
+
+.billArtElectricity {
+  background-position: 33.333% 0%;
+}
+
+.billArtGas {
+  background-position: 66.666% 0%;
+}
+
+.billArtInternet {
+  background-position: 100% 0%;
+}
+
+.billArtCable {
+  background-position: 0% 33.333%;
+}
+
+.billArtPhone {
+  background-position: 33.333% 33.333%;
+}
+
+.billArtTax {
+  background-position: 66.666% 33.333%;
+}
+
+.billArtInsurance {
+  background-position: 100% 33.333%;
+}
+
+.billArtWaste {
+  background-position: 0% 66.666%;
+}
+
+.billArtHoa {
+  background-position: 33.333% 66.666%;
+}
+
+.billArtTuition {
+  background-position: 66.666% 66.666%;
+}
+
+.billArtMortgage {
+  background-position: 100% 66.666%;
+}
+
+.airtimeArtVerizon,
+.airtimeArtAtt,
+.airtimeArtTmobile,
+.airtimeArtCricket,
+.airtimeArtBoost {
+  background-size: 300% 200%;
+}
+
+.airtimeArtVerizon {
+  background-position: 0% 0%;
+}
+
+.airtimeArtAtt {
+  background-position: 50% 0%;
+}
+
+.airtimeArtTmobile {
+  background-position: 100% 0%;
+}
+
+.airtimeArtCricket {
+  background-position: 0% 100%;
+}
+
+.airtimeArtBoost {
+  background-position: 50% 100%;
+}
+
 .pinModule {
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -512,6 +827,117 @@
   border-radius: 14px;
   background: rgba(15, 98, 254, 0.1);
   color: var(--text) !important;
+}
+
+.billReviewCard {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(226, 232, 240, 0.82);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.62), transparent 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.66), rgba(244, 248, 255, 0.34));
+  padding: 14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 18px 32px rgba(16, 24, 40, 0.08);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.billReviewHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.billReviewHead span,
+.billReviewHead strong {
+  display: block;
+}
+
+.billReviewHead span {
+  color: var(--text-soft);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.billReviewPinBadge {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.84);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.billReviewPinBadge svg {
+  width: 16px;
+  height: 16px;
+}
+
+.billReviewPinBadge small {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.billReviewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.billReviewGrid div {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(226, 232, 240, 0.78);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.62), rgba(247, 250, 255, 0.3));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.billReviewGrid span,
+.billReviewGrid strong {
+  display: block;
+}
+
+.billReviewGrid span {
+  color: var(--text-soft);
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.billReviewGrid strong {
+  overflow-wrap: anywhere;
+}
+
+[data-theme="dark"] .billReviewCard {
+  border-color: rgba(148, 163, 184, 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 42%),
+    linear-gradient(145deg, rgba(15, 26, 43, 0.76), rgba(10, 21, 36, 0.48));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 22px 36px rgba(2, 6, 23, 0.34);
+}
+
+[data-theme="dark"] .billReviewPinBadge {
+  background: rgba(15, 23, 42, 0.58);
+  border-color: rgba(96, 165, 250, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .billReviewGrid div {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: linear-gradient(145deg, rgba(9, 18, 31, 0.78), rgba(15, 26, 43, 0.44));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .preloaderOverlay {
@@ -864,12 +1290,50 @@
     grid-template-columns: 1fr;
   }
 
+  .servicePreviewCard {
+    grid-template-columns: 66px minmax(0, 1fr);
+    padding: 14px;
+  }
+
+  .servicePreviewArt {
+    width: 66px;
+    height: 66px;
+    border-radius: 16px;
+  }
+
+  .imagePickerGrid,
+  .imagePickerGridTight,
+  .transactionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .imagePickerCard {
+    min-height: 102px;
+    padding: 8px;
+  }
+
+  .serviceTileArt {
+    border-radius: 12px;
+  }
+
+  .viewToggle button {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+  }
+
   .reviewGrid,
   .formActions,
   .transferReceipt,
   .receiptMetaGrid,
-  .receiptActions {
+  .receiptActions,
+  .billReviewGrid {
     grid-template-columns: 1fr;
+  }
+
+  .billReviewHead {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .transferSteps {

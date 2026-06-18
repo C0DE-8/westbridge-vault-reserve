@@ -2737,6 +2737,117 @@ router.get('/telegram-test', async (req, res) => {
 
 
 
+// Admin view all bill and airtime payment requests 👀 GET /admin/bill-payments
+router.get('/bill-payments', authenticateToken, checkAdmin, async (req, res) => {
+  try {
+    const [rows] = await db.promise().query(
+      `SELECT bp.*, u.username, u.email
+       FROM bill_payments bp
+       JOIN users u ON bp.user_id = u.id
+       ORDER BY bp.id DESC`
+    );
+
+    const payments = rows.map((row) => ({
+      id: row.id,
+      user_id: row.user_id,
+      username: row.username,
+      email: row.email,
+      payment_kind: row.payment_kind,
+      bill_category: row.bill_category,
+      provider_name: row.provider_name,
+      customer_reference: row.customer_reference,
+      from_account: row.from_account,
+      amount: row.amount,
+      note: row.note || '',
+      status: row.status,
+      created_at: row.created_at,
+      reviewed_at: row.reviewed_at,
+    }));
+
+    res.json({ payments });
+  } catch (error) {
+    console.error('❌ Admin fetch bill payments error:', error);
+    res.status(500).json({ error: 'Failed to fetch bill payments' });
+  }
+});
+
+// Admin confirms a bill or airtime request ✅ PUT /admin/bill-payments/:id/confirm
+router.put('/bill-payments/:id/confirm', authenticateToken, checkAdmin, async (req, res) => {
+  const conn = db.promise();
+  try {
+    const paymentId = req.params.id;
+    const reviewedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    await conn.beginTransaction();
+
+    const [[payment]] = await conn.query(
+      'SELECT * FROM bill_payments WHERE id = ? FOR UPDATE',
+      [paymentId]
+    );
+
+    if (!payment) {
+      await conn.rollback();
+      return res.status(404).json({ error: 'Bill payment not found' });
+    }
+
+    if (payment.status !== 'pending') {
+      await conn.rollback();
+      return res.status(400).json({ error: `Bill payment already ${payment.status}` });
+    }
+
+    const balanceColumn = payment.from_account === 'savings' ? 'savings_balance' : 'current_balance';
+    const [[user]] = await conn.query(
+      `SELECT ${balanceColumn} AS balance FROM users WHERE id = ? FOR UPDATE`,
+      [payment.user_id]
+    );
+
+    const balance = Number(user?.balance || 0);
+    const amount = Number(payment.amount || 0);
+    if (balance < amount) {
+      await conn.rollback();
+      return res.status(400).json({ error: 'Insufficient balance to confirm this payment' });
+    }
+
+    await conn.query(
+      `UPDATE users SET ${balanceColumn} = COALESCE(${balanceColumn}, 0) - ? WHERE id = ?`,
+      [amount, payment.user_id]
+    );
+
+    await conn.query(
+      'UPDATE bill_payments SET status = ?, reviewed_at = ? WHERE id = ?',
+      ['confirmed', reviewedAt, paymentId]
+    );
+
+    await conn.commit();
+    res.json({ message: 'Bill payment confirmed successfully' });
+  } catch (error) {
+    try { await conn.rollback(); } catch (_) {}
+    console.error('❌ Confirm bill payment error:', error);
+    res.status(500).json({ error: 'Failed to confirm bill payment' });
+  }
+});
+
+// Admin rejects a bill or airtime request ❌ PUT /admin/bill-payments/:id/reject
+router.put('/bill-payments/:id/reject', authenticateToken, checkAdmin, async (req, res) => {
+  try {
+    const paymentId = req.params.id;
+    const reviewedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const [result] = await db.promise().query(
+      'UPDATE bill_payments SET status = ?, reviewed_at = ? WHERE id = ? AND status = ?',
+      ['rejected', reviewedAt, paymentId, 'pending']
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Pending bill payment not found' });
+    }
+
+    res.json({ message: 'Bill payment rejected successfully' });
+  } catch (error) {
+    console.error('❌ Reject bill payment error:', error);
+    res.status(500).json({ error: 'Failed to reject bill payment' });
+  }
+});
+
 // Admin view all deposits 👀 GET /admin/deposits
 router.get('/deposits', authenticateToken, checkAdmin, async (req, res) => {
   try {

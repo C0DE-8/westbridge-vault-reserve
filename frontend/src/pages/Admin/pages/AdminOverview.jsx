@@ -9,6 +9,7 @@ export default function AdminOverview() {
     users: [],
     transfers: [],
     deposits: [],
+    billPayments: [],
     tickets: [],
   });
   const [loading, setLoading] = useState(true);
@@ -18,11 +19,12 @@ export default function AdminOverview() {
 
     async function load() {
       setLoading(true);
-      const [onboardingRes, usersRes, transfersRes, depositsRes, ticketsRes] = await Promise.allSettled([
+      const [onboardingRes, usersRes, transfersRes, depositsRes, billPaymentsRes, ticketsRes] = await Promise.allSettled([
         axiosInstance.get("/admin/onboarding?status=all"),
         axiosInstance.get("/admin/users?pageSize=100"),
         axiosInstance.get("/admin/all-transfers"),
         axiosInstance.get("/admin/deposits"),
+        axiosInstance.get("/admin/bill-payments"),
         axiosInstance.get("/admin/tickets"),
       ]);
 
@@ -33,6 +35,7 @@ export default function AdminOverview() {
         users: usersRes.value?.data?.users || [],
         transfers: transfersRes.value?.data?.transfers || [],
         deposits: depositsRes.value?.data?.deposits || [],
+        billPayments: billPaymentsRes.value?.data?.payments || [],
         tickets: Array.isArray(ticketsRes.value?.data) ? ticketsRes.value.data : [],
       });
       setLoading(false);
@@ -47,6 +50,7 @@ export default function AdminOverview() {
   const stats = useMemo(() => {
     const pendingApplications = data.applications.filter((item) => item.status === "pending").length;
     const pendingDeposits = data.deposits.filter((item) => item.status === "pending").length;
+    const pendingBillPayments = data.billPayments.filter((item) => item.status === "pending").length;
     const openTickets = data.tickets.filter((item) => String(item.status).toLowerCase() !== "closed").length;
     const transferVolume = data.transfers.reduce((sum, transfer) => {
       const amount = Number(String(transfer.amount || "0").replace(/[^\d.-]/g, ""));
@@ -57,6 +61,7 @@ export default function AdminOverview() {
       users: data.users.length,
       pendingApplications,
       pendingDeposits,
+      pendingBillPayments,
       openTickets,
       transferVolume,
     };
@@ -70,6 +75,7 @@ export default function AdminOverview() {
         <div className={styles.card}><h3>Total Users</h3><p>{stats.users}</p></div>
         <div className={styles.card}><h3>Pending Onboarding</h3><p>{stats.pendingApplications}</p></div>
         <div className={styles.card}><h3>Pending Deposits</h3><p>{stats.pendingDeposits}</p></div>
+        <div className={styles.card}><h3>Pending Bill Payments</h3><p>{stats.pendingBillPayments}</p></div>
         <div className={styles.card}><h3>Open Tickets</h3><p>{stats.openTickets}</p></div>
       </div>
 
