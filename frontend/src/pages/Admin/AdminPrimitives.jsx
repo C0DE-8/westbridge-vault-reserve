@@ -1,5 +1,6 @@
 import styles from "./Admin.module.css";
 import { API_ORIGIN } from "../../api/axios";
+import LogoPreloader from "../../components/ui/LogoPreloader";
 
 export const resolveAsset = (url) => {
   if (!url) return "";
@@ -73,6 +74,7 @@ export function OverviewSkeleton() {
 export function TableSkeleton({ title = "Loading...", columns = 5, rows = 6 }) {
   return (
     <section className={`${styles.panel} ${styles.skeletonSurface}`}>
+      <LogoPreloader label={title} compact />
       <div className={`${styles.skeletonLine} ${styles.skeletonHeading}`} />
       <div className={styles.table}>
         <div className={styles.tableHead} style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
@@ -89,6 +91,66 @@ export function TableSkeleton({ title = "Loading...", columns = 5, rows = 6 }) {
         ))}
       </div>
     </section>
+  );
+}
+
+export function TransferSettingsSkeleton() {
+  return (
+    <div className={styles.settingsStack}>
+      <LogoPreloader label="Loading transfer controls" />
+
+      <div className={styles.transferControlGrid}>
+        <section className={`${styles.panel} ${styles.skeletonSurface}`}>
+          <div className={styles.settingsHeader}>
+            <div className={styles.skeletonStack}>
+              <div className={`${styles.skeletonBadgeWide} ${styles.skeletonLine}`} />
+              <div className={`${styles.skeletonLine} ${styles.skeletonHeading}`} />
+              <div className={`${styles.skeletonLine} ${styles.skeletonMeta}`} />
+            </div>
+          </div>
+
+          <div className={styles.requirementActions}>
+            <div className={`${styles.skeletonButtonWide} ${styles.skeletonLine}`} />
+            <div className={`${styles.skeletonButtonWide} ${styles.skeletonLine}`} />
+          </div>
+
+          <div className={styles.codeControlList}>
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div className={styles.codeControlCard} key={index}>
+                <div className={styles.compactRow}>
+                  <div className={`${styles.skeletonLine} ${styles.skeletonRow}`} />
+                  <div className={`${styles.skeletonToggle} ${styles.skeletonLine}`} />
+                </div>
+                <div className={`${styles.skeletonField} ${styles.skeletonLine}`} />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className={`${styles.panel} ${styles.skeletonSurface}`}>
+          <div className={styles.settingsHeader}>
+            <div className={styles.skeletonStack}>
+              <div className={`${styles.skeletonBadgeWide} ${styles.skeletonLine}`} />
+              <div className={`${styles.skeletonLine} ${styles.skeletonHeading}`} />
+              <div className={`${styles.skeletonLine} ${styles.skeletonMeta}`} />
+            </div>
+          </div>
+
+          <div className={styles.feeCardGrid}>
+            {Array.from({ length: 2 }).map((_, index) => (
+              <div className={styles.feeManageCard} key={index}>
+                <div className={`${styles.skeletonLine} ${styles.skeletonLabel}`} />
+                <div className={`${styles.skeletonLine} ${styles.skeletonValue}`} />
+                <div className={`${styles.skeletonField} ${styles.skeletonLine}`} />
+                <div className={`${styles.skeletonButtonWide} ${styles.skeletonLine}`} />
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <TableSkeleton title="Loading transfers" columns={7} rows={6} />
+    </div>
   );
 }
 
@@ -154,7 +216,8 @@ export function WalletSkeleton({ items = 4 }) {
 export function SettingsSkeleton() {
   return (
     <div className={styles.settingsStack}>
-      {Array.from({ length: 3 }).map((_, index) => (
+      <LogoPreloader label="Loading admin settings" />
+      {Array.from({ length: 4 }).map((_, index) => (
         <section className={`${styles.panel} ${styles.skeletonSurface}`} key={index}>
           <div className={styles.settingsHeader}>
             <div className={styles.skeletonStack}>
@@ -185,6 +248,33 @@ export function SettingsSkeleton() {
                   <div className={`${styles.skeletonButtonWide} ${styles.skeletonLine}`} />
                 </div>
               </div>
+            </div>
+          ) : index === 2 ? (
+            <div className={styles.operationalGrid}>
+              {Array.from({ length: 5 }).map((__, fieldIndex) => (
+                <div className={fieldIndex < 3 ? styles.requirementCard : styles.feeManageCard} key={fieldIndex}>
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLabel}`} />
+                  <div className={`${styles.skeletonLine} ${styles.skeletonValue}`} />
+                  {fieldIndex < 3 ? (
+                    <div className={`${styles.skeletonToggle} ${styles.skeletonLine}`} />
+                  ) : (
+                    <>
+                      <div className={`${styles.skeletonField} ${styles.skeletonLine}`} />
+                      <div className={`${styles.skeletonButtonWide} ${styles.skeletonLine}`} />
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : index === 3 ? (
+            <div className={styles.codeCardsGrid}>
+              {Array.from({ length: 3 }).map((__, fieldIndex) => (
+                <div className={styles.codeValueCard} key={fieldIndex}>
+                  <div className={`${styles.skeletonLine} ${styles.skeletonLabel}`} />
+                  <div className={`${styles.skeletonLine} ${styles.skeletonValue}`} />
+                  <div className={`${styles.skeletonField} ${styles.skeletonLine}`} />
+                </div>
+              ))}
             </div>
           ) : (
             <div className={styles.settingsForm}>

@@ -25,6 +25,7 @@ const sections = [
   { path: "/admin/users", label: "Users", icon: FiUsers },
   { path: "/admin/transfers", label: "Transfers", icon: FiDollarSign },
   { path: "/admin/deposits", label: "Deposits", icon: FiCreditCard },
+  { path: "/admin/atm-cards", label: "ATM Cards", icon: FiCreditCard },
   { path: "/admin/loans", label: "Loans", icon: FiFileText },
   { path: "/admin/bill-payments", label: "Bill Payments", icon: FiCreditCard },
   { path: "/admin/tickets", label: "Tickets", icon: FiLifeBuoy },

@@ -1,0 +1,41 @@
+.preloader {
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 12px;
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.preloader img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  animation: logoBeatFade 1.28s ease-in-out infinite;
+  filter: drop-shadow(0 12px 24px rgba(185, 28, 28, 0.18));
+}
+
+.compact {
+  min-height: 82px;
+  gap: 8px;
+}
+
+.compact img {
+  width: 42px;
+  height: 42px;
+}
+
+@keyframes logoBeatFade {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: scale(0.92);
+  }
+
+  45% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}

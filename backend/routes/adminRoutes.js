@@ -1300,7 +1300,7 @@ router.get('/all-transfers', authenticateToken, checkAdmin, (req, res) => {
 router.post('/set-card-fee', authenticateToken, checkAdmin, (req, res) => {
   const { account_type, fee } = req.body;
 
-  if (!['savings', 'current'].includes(account_type) || isNaN(fee)) {
+  if (!['savings', 'current'].includes(account_type) || isNaN(fee) || Number(fee) < 0) {
     return res.status(400).json({ error: 'Invalid request' });
   }
 
@@ -1333,7 +1333,7 @@ router.get('/card-fee', authenticateToken, checkAdmin, (req, res) => {
           return res.status(500).json({ error: 'Database error', details: err.message });
         }
         if (!rows || rows.length === 0) {
-          return res.status(404).json({ error: `No fee configured for ${account_type}` });
+          return res.json({ account_type, fee: 0 });
         }
         const fee = parseFloat(rows[0].fee);
         return res.json({ account_type, fee });
@@ -1351,13 +1351,110 @@ router.get('/card-fee', authenticateToken, checkAdmin, (req, res) => {
         return res.status(500).json({ error: 'Database error', details: err.message });
       }
       if (!rows || rows.length === 0) {
-        return res.status(404).json({ error: 'No card fees set' });
+        return res.json({ fees: { savings: 0, current: 0 } });
       }
       const fees = {};
       rows.forEach(r => { fees[r.account_type] = parseFloat(r.fee); });
       return res.json({ fees });
     }
   );
+});
+
+// Admin edits an ATM card request/card
+router.put('/atm-cards/:id', authenticateToken, checkAdmin, async (req, res) => {
+  const { id } = req.params;
+  const {
+    account_type,
+    card_number,
+    card_holder_name,
+    expiry_date,
+    cvv,
+    fee,
+    status,
+  } = req.body;
+
+  const nextStatus = status ? String(status).toLowerCase() : undefined;
+  const nextAccountType = account_type ? String(account_type).toLowerCase() : undefined;
+
+  if (nextAccountType && !['savings', 'current'].includes(nextAccountType)) {
+    return res.status(400).json({ error: 'Invalid account type' });
+  }
+
+  if (nextStatus && !['pending', 'approved', 'rejected'].includes(nextStatus)) {
+    return res.status(400).json({ error: 'Invalid card status' });
+  }
+
+  const cleanCardNumber = card_number !== undefined ? String(card_number).replace(/\s+/g, '') : undefined;
+  if (cleanCardNumber !== undefined && !/^\d{12,16}$/.test(cleanCardNumber)) {
+    return res.status(400).json({ error: 'Card number must be 12 to 16 digits' });
+  }
+
+  if (expiry_date !== undefined && !/^\d{2}\/\d{2}$/.test(String(expiry_date))) {
+    return res.status(400).json({ error: 'Expiry date must use MM/YY format' });
+  }
+
+  if (cvv !== undefined && !/^\d{3,4}$/.test(String(cvv))) {
+    return res.status(400).json({ error: 'CVV must be 3 or 4 digits' });
+  }
+
+  if (fee !== undefined && (Number.isNaN(Number(fee)) || Number(fee) < 0)) {
+    return res.status(400).json({ error: 'Invalid card fee' });
+  }
+
+  try {
+    const [[card]] = await db.promise().query(
+      `SELECT c.*, u.full_name, u.email, u.currency_sign
+       FROM atm_cards c
+       JOIN users u ON u.id = c.user_id
+       WHERE c.id = ?`,
+      [id]
+    );
+
+    if (!card) {
+      return res.status(404).json({ error: 'ATM card not found' });
+    }
+
+    const nextValues = {
+      account_type: nextAccountType || card.account_type,
+      card_number: cleanCardNumber !== undefined ? cleanCardNumber : card.card_number,
+      card_holder_name: card_holder_name !== undefined ? String(card_holder_name).trim() : card.card_holder_name,
+      expiry_date: expiry_date !== undefined ? String(expiry_date).trim() : card.expiry_date,
+      cvv: cvv !== undefined ? String(cvv).trim() : card.cvv,
+      fee: fee !== undefined ? Number(fee) : Number(card.fee),
+      status: nextStatus || card.status,
+    };
+
+    if (!nextValues.card_holder_name) {
+      return res.status(400).json({ error: 'Card holder name is required' });
+    }
+
+    await db.promise().query(
+      `UPDATE atm_cards
+       SET account_type = ?, card_number = ?, card_holder_name = ?, expiry_date = ?, cvv = ?, fee = ?, status = ?
+       WHERE id = ?`,
+      [
+        nextValues.account_type,
+        nextValues.card_number,
+        nextValues.card_holder_name,
+        nextValues.expiry_date,
+        nextValues.cvv,
+        nextValues.fee,
+        nextValues.status,
+        id,
+      ]
+    );
+
+    await logActivity(
+      card.user_id,
+      'atm_card_updated_by_admin',
+      `Admin updated ATM card #${id} (${nextValues.account_type}, ${nextValues.status})`
+    );
+
+    res.json({ message: 'ATM card updated successfully' });
+  } catch (error) {
+    console.error('❌ Failed to update ATM card:', error);
+    res.status(500).json({ error: 'Failed to update ATM card' });
+  }
 });
 // ✅ Admin approves an ATM card
 router.put('/atm-cards/:cardId/approve', authenticateToken, checkAdmin, async (req, res) => {
@@ -1443,6 +1540,7 @@ router.get('/atm-cards', authenticateToken, checkAdmin, async (req, res) => {
       expiry_date: card.expiry_date,
       cvv: card.cvv,
       fee: `${card.currency_sign}${parseFloat(card.fee).toFixed(2)}`,
+      fee_amount: parseFloat(card.fee),
       status: card.status,
       created_at: card.requested_at ? moment(card.requested_at).format('YYYY-MM-DD HH:mm:ss') : null,
       updated_at: null // not tracked in current schema

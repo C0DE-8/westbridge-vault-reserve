@@ -546,6 +546,19 @@
   gap: 12px;
 }
 
+.codeToggleRow {
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 900;
+}
+
+.codeToggleRow span {
+  min-width: 0;
+}
+
 .operationalGrid,
 .codeCardsGrid {
   display: grid;
@@ -593,9 +606,52 @@
 .requirementCard input {
   grid-row: 1 / span 2;
   grid-column: 2;
-  width: 42px;
-  height: 24px;
-  accent-color: var(--primary);
+}
+
+.requirementCard input,
+.codeToggleRow input {
+  appearance: none;
+  width: 52px;
+  height: 30px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  border-radius: 999px;
+  background: #cbd5e1;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  flex: 0 0 auto;
+}
+
+.requirementCard input::before,
+.codeToggleRow input::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.22);
+  transition: transform 0.18s ease;
+}
+
+.requirementCard input:checked,
+.codeToggleRow input:checked {
+  background: var(--primary);
+  border-color: color-mix(in srgb, var(--primary) 78%, transparent);
+  box-shadow: 0 0 0 4px rgba(185, 28, 28, 0.1);
+}
+
+.requirementCard input:checked::before,
+.codeToggleRow input:checked::before {
+  transform: translateX(22px);
+}
+
+.requirementCard input:focus-visible,
+.codeToggleRow input:focus-visible {
+  outline: 3px solid rgba(185, 28, 28, 0.22);
+  outline-offset: 3px;
 }
 
 .codeValueCard {
@@ -622,6 +678,12 @@
 
 .feeCardGrid {
   display: grid;
+  gap: 14px;
+}
+
+.atmFeeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(240px, 1fr));
   gap: 14px;
 }
 
@@ -1190,6 +1252,14 @@
   background: #dc2626 !important;
 }
 
+.inlineActions .editActionBtn {
+  background: #2563eb !important;
+}
+
+.inlineActions .deleteActionBtn {
+  background: #dc2626 !important;
+}
+
 .actions button:disabled {
   opacity: 0.65;
   cursor: not-allowed;
@@ -1298,6 +1368,7 @@
 .skeletonBadgeWide,
 .skeletonButton,
 .skeletonButtonWide,
+.skeletonToggle,
 .skeletonThumb,
 .skeletonHeadCell {
   border-radius: 12px;
@@ -1367,6 +1438,12 @@
   min-height: 40px;
 }
 
+.skeletonToggle {
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+}
+
 .skeletonThumb {
   width: 100%;
   aspect-ratio: 16 / 10;
@@ -1399,6 +1476,7 @@
 [data-theme="dark"] .skeletonBadgeWide,
 [data-theme="dark"] .skeletonButton,
 [data-theme="dark"] .skeletonButtonWide,
+[data-theme="dark"] .skeletonToggle,
 [data-theme="dark"] .skeletonThumb,
 [data-theme="dark"] .skeletonHeadCell {
   background:
@@ -1453,6 +1531,7 @@
   .adminStatsGrid,
   .adminDetailGrid,
   .transferControlGrid,
+  .atmFeeGrid,
   .transferFilters {
     grid-template-columns: 1fr;
   }
@@ -1516,6 +1595,7 @@
   .adminDetailGrid,
   .settingsFormGrid,
   .transferControlGrid,
+  .atmFeeGrid,
   .transferFilters {
     grid-template-columns: 1fr;
   }

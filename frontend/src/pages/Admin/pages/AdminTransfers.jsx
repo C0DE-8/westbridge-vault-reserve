@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { FiCopy, FiDollarSign, FiFilter, FiRefreshCw, FiSave, FiShield } from "react-icons/fi";
 import { useOutletContext } from "react-router-dom";
 import axiosInstance from "../../../api/axios";
-import { DataTable, EmptyState, StatusBadge, TableSkeleton } from "../AdminPrimitives";
+import { DataTable, EmptyState, StatusBadge, TransferSettingsSkeleton } from "../AdminPrimitives";
 import styles from "../Admin.module.css";
 
 const INITIAL_CODES = {
@@ -221,7 +221,7 @@ export default function AdminTransfers() {
     }
   };
 
-  if (loading) return <TableSkeleton columns={7} rows={7} />;
+  if (loading) return <TransferSettingsSkeleton />;
 
   return (
     <div className={styles.settingsStack}>
@@ -248,7 +248,7 @@ export default function AdminTransfers() {
             <div className={styles.codeControlList}>
               {codeFields.map((item) => (
                 <div className={styles.codeControlCard} key={item.key}>
-                  <label className={styles.toggleRow}>
+                  <label className={styles.codeToggleRow}>
                     <span>{item.label} required</span>
                     <input
                       type="checkbox"
