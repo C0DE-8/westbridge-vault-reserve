@@ -258,7 +258,7 @@ export default function BillsAirtimePage() {
           </button>
           <div>
             <span>{form.payment_kind === "airtime" ? <FiPhone /> : <FiFileText />}</span>
-            <h1>Bills & Airtime</h1>
+            <h1>Top-Up</h1>
           </div>
           <button
             className={styles.mobileSettingsButton}
@@ -310,8 +310,8 @@ export default function BillsAirtimePage() {
         <section className={styles.panel}>
           <div className={styles.panelHead}>
             <div>
-              <h2>{form.payment_kind === "airtime" ? "Mobile Airtime" : "U.S. Bill Payment"}</h2>
-              <p>Every payment request is held pending until an admin confirms it.</p>
+            <h2>{form.payment_kind === "airtime" ? "Mobile Top-Up" : "Utility Top-Up"}</h2>
+              <p>Every top-up request is held pending until an admin confirms it.</p>
             </div>
           </div>
 
@@ -497,7 +497,7 @@ export default function BillsAirtimePage() {
           {loading ? (
             <div className={styles.preloaderBlock}>
               <span />
-              <strong>Loading bill payments...</strong>
+              <strong>Loading top-up requests...</strong>
             </div>
           ) : payments.length === 0 ? (
             <p className={styles.empty}>No bill or airtime requests yet.</p>

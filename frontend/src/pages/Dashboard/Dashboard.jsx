@@ -236,7 +236,7 @@ export default function Dashboard() {
   ];
   const activeAccount = accountCards[activeAccountIndex] || accountCards[0];
   const productItems = [
-    { label: "Bills & Airtime", path: "/bills-airtime", icon: <FiPhone /> },
+    { label: "Top-Up", path: "/bills-airtime", icon: <FiPhone /> },
     { label: "Statements", path: "/statements", icon: <FiFileText /> },
     { label: "Cards", path: "/cards", icon: <FiCreditCard /> },
     { label: "Loans", path: "/loans", icon: <FiTrendingUp /> },

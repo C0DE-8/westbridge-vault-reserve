@@ -8,7 +8,10 @@ export default function ProtectedRoute({ children, allowedRoles }) {
     allowedRoles?.length === 1 ? getSessionUser(allowedRoles[0]) : user;
 
   if (!routeUser) {
-    return <Navigate to="/login" replace />;
+    if (allowedRoles?.length === 1 && allowedRoles[0] === "admin") {
+      return <Navigate to="/admin/auth" replace />;
+    }
+    return <Navigate to="/auth" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(routeUser.role)) {

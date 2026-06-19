@@ -104,6 +104,7 @@ export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isAdminAuth = location.pathname.startsWith("/admin/auth");
 
   const registrationPhases = [
     {
@@ -123,12 +124,17 @@ export default function Login() {
       description: "Login credentials used after approval",
     },
   ];
+  const pageTitle = mode === "login" ? (isAdminAuth ? "Admin sign in" : "Welcome back") : "Start onboarding";
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
+    if (isAdminAuth) {
+      setMode("login");
+      return;
+    }
     const params = new URLSearchParams(location.search);
     const requestedMode = params.get("mode");
     if (requestedMode === "register") {
@@ -138,7 +144,7 @@ export default function Login() {
     if (requestedMode === "login") {
       setMode("login");
     }
-  }, [location.search]);
+  }, [isAdminAuth, location.search]);
 
   useEffect(() => {
     const { password, confirm_password, ...safeRegistration } = registration;
@@ -462,35 +468,46 @@ export default function Login() {
                 className={mode === "login" ? styles.activeTab : ""}
                 onClick={() => setMode("login")}
               >
-                Login
+                {isAdminAuth ? "Admin login" : "Login"}
               </button>
-              <button
-                type="button"
-                className={mode === "register" ? styles.activeTab : ""}
-                onClick={() => {
-                  setMode("register");
-                  setRegistrationStep(0);
-                }}
-              >
-                Open account
-              </button>
+              {!isAdminAuth && (
+                <button
+                  type="button"
+                  className={mode === "register" ? styles.activeTab : ""}
+                  onClick={() => {
+                    setMode("register");
+                    setRegistrationStep(0);
+                  }}
+                >
+                  Open account
+                </button>
+              )}
             </div>
 
-            <h1>{mode === "login" ? "Welcome back" : "Start onboarding"}</h1>
+            {isAdminAuth && (
+              <div className={styles.adminBadge}>
+                <span>Admin console</span>
+                <small>Restricted staff access</small>
+              </div>
+            )}
+
+            <h1>{pageTitle}</h1>
             <p className={styles.subtitle}>
               {mode === "login"
-                ? "Sign in to access your West Bridge Vault Reserve dashboard, manage transactions, monitor accounts, and stay in control securely."
+                ? isAdminAuth
+                  ? "Sign in to access the West Bridge Vault Reserve admin console and manage customer approvals, support, and platform operations."
+                  : "Sign in to access your West Bridge Vault Reserve dashboard, manage transactions, monitor accounts, and stay in control securely."
                 : "Submit your banking profile and identification documents for admin review before account numbers are issued."}
             </p>
 
             {mode === "login" ? (
               <form className={styles.form} onSubmit={handleSubmit}>
                 <div className={styles.inputGroup}>
-                  <label>Email address or Account Number</label>
+                  <label>{isAdminAuth ? "Admin email or username" : "Email address or Account Number"}</label>
                   <input
                     type="text"
                     name="identifier"
-                    placeholder="Enter your email or account number"
+                    placeholder={isAdminAuth ? "Enter your admin email or username" : "Enter your email or account number"}
                     value={formData.identifier}
                     onChange={handleChange}
                     required
@@ -529,7 +546,7 @@ export default function Login() {
                   type="submit"
                   disabled={loading}
                 >
-                  {loading ? "Signing in..." : "Login"}
+                  {loading ? "Signing in..." : isAdminAuth ? "Access admin" : "Login"}
                 </button>
               </form>
             ) : (

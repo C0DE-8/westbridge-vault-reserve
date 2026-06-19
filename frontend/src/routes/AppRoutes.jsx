@@ -104,6 +104,15 @@ export default function AppRoutes() {
         />
 
         <Route
+          path="/admin/auth"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+
+        <Route
           path="/verify-login-otp"
           element={
             <PublicRoute>

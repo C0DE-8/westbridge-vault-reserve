@@ -18,9 +18,7 @@ export default function ProfilePage() {
   const { toasts, notify, dismissToast } = useGlassToast();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [profile, setProfile] = useState(null);
-  const [profileForm, setProfileForm] = useState({ account_title: "", username: "" });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -33,10 +31,6 @@ export default function ProfilePage() {
         if (!active) return;
         const nextProfile = res.data?.user || null;
         setProfile(nextProfile);
-        setProfileForm({
-          account_title: nextProfile?.full_name || "",
-          username: nextProfile?.username || "",
-        });
       })
       .catch(() => {
         if (active) {
@@ -65,29 +59,6 @@ export default function ProfilePage() {
       : profile?.acct_status === "rejected"
         ? "Rejected"
         : "Pending review";
-
-  const saveProfile = async (event) => {
-    event.preventDefault();
-    try {
-      setSaving(true);
-      const res = await axiosInstance.put("/user/profile/update", profileForm);
-      const nextProfile = {
-        ...profile,
-        full_name: profileForm.account_title,
-        username: profileForm.username,
-      };
-      setProfile(nextProfile);
-      updateSessionUser("user", {
-        full_name: profileForm.account_title,
-        username: profileForm.username,
-      });
-      notify(res.data?.message || "Profile updated successfully.", "success", "Profile updated");
-    } catch (error) {
-      notify(error?.response?.data?.error || "Failed to update your profile.", "error", "Profile update failed");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const uploadImage = async (event) => {
     const file = event.target.files?.[0];
@@ -178,7 +149,6 @@ export default function ProfilePage() {
               </div>
 
               <div className={styles.profileGrid}>
-                <div><span>Main account</span><strong>{profile?.account_number || "Pending"}</strong></div>
                 <div><span>Savings account</span><strong>{profile?.s_account_number || "Pending"}</strong></div>
                 <div><span>Current account</span><strong>{profile?.c_account_number || "Pending"}</strong></div>
                 <div><span>Currency</span><strong>{profile?.currency_sign || "$"}</strong></div>
@@ -191,33 +161,15 @@ export default function ProfilePage() {
               <div className={styles.panelHead}>
                 <div>
                   <h2>Account Details</h2>
-                  <p>Update the account title and username shown on your banking profile.</p>
+                  <p>Registered account details are locked after onboarding approval. Contact bank support for any authorized changes.</p>
                 </div>
               </div>
-
-              <form className={styles.formGrid} onSubmit={saveProfile}>
-                <label>
-                  Account title
-                  <input
-                    type="text"
-                    value={profileForm.account_title}
-                    onChange={(event) => setProfileForm((current) => ({ ...current, account_title: event.target.value }))}
-                    required
-                  />
-                </label>
-                <label>
-                  Username
-                  <input
-                    type="text"
-                    value={profileForm.username}
-                    onChange={(event) => setProfileForm((current) => ({ ...current, username: event.target.value }))}
-                    required
-                  />
-                </label>
-                <button type="submit" disabled={saving}>
-                  {saving ? "Saving..." : "Save Profile"}
-                </button>
-              </form>
+              <div className={styles.profileGrid}>
+                <div><span>Account title</span><strong>{profile?.full_name || "Not set"}</strong></div>
+                <div><span>Username</span><strong>{profile?.username || "Not set"}</strong></div>
+                <div><span>Email</span><strong>{profile?.email || "Not set"}</strong></div>
+                <div><span>Support route</span><strong>Contact West Bridge support for authorized changes</strong></div>
+              </div>
             </section>
 
             <section className={styles.panel}>

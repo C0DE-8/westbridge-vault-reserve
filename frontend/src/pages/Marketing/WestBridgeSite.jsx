@@ -82,8 +82,8 @@ function MarketingLayout({ children, activePath }) {
           </nav>
 
           <div className={styles.headerActions}>
-            <Link className={styles.secondaryLink} to="/login?mode=login">Login</Link>
-            <Link className={styles.primaryLink} to="/login?mode=register">Open Account</Link>
+            <Link className={styles.secondaryLink} to="/auth?mode=login">Login</Link>
+            <Link className={styles.primaryLink} to="/auth?mode=register">Open Account</Link>
           </div>
 
           <button
@@ -110,8 +110,8 @@ function MarketingLayout({ children, activePath }) {
             ))}
           </nav>
           <div className={styles.mobileMenuActions}>
-            <Link className={styles.secondaryLink} to="/login?mode=login">Login</Link>
-            <Link className={styles.primaryLink} to="/login?mode=register">Open Account</Link>
+            <Link className={styles.secondaryLink} to="/auth?mode=login">Login</Link>
+            <Link className={styles.primaryLink} to="/auth?mode=register">Open Account</Link>
           </div>
         </div>
       </header>
@@ -136,8 +136,9 @@ function MarketingLayout({ children, activePath }) {
           <div className={styles.footerCol}>
             <h4>Company</h4>
             <Link to="/contact">Contact</Link>
-            <Link to="/login?mode=login">Account Login</Link>
-            <Link to="/login?mode=register">Open Account</Link>
+            <Link to="/auth?mode=login">Account Login</Link>
+            <Link to="/admin/auth">Admin Login</Link>
+            <Link to="/auth?mode=register">Open Account</Link>
           </div>
           <div className={styles.footerCol}>
             <h4>Contact</h4>
@@ -185,10 +186,10 @@ export function WestBridgeHomePage() {
                 funding support, transfers, payments, and account services.
               </p>
               <div className={styles.heroActions}>
-                <Link className={styles.primaryLink} to="/login?mode=login">
+                <Link className={styles.primaryLink} to="/auth?mode=login">
                   Account Login <FiArrowRight />
                 </Link>
-                <Link className={styles.secondaryHeroLink} to="/login?mode=register">
+                <Link className={styles.secondaryHeroLink} to="/auth?mode=register">
                   Open Account <FiArrowRight />
                 </Link>
               </div>
@@ -286,7 +287,7 @@ export function WestBridgeHomePage() {
             <h2>We have a simple online application</h2>
           </div>
           <div className={styles.heroActions}>
-            <Link className={styles.primaryLink} to="/login?mode=register">Open Account</Link>
+            <Link className={styles.primaryLink} to="/auth?mode=register">Open Account</Link>
             <Link className={styles.secondaryLink} to="/contact">Contact Us</Link>
           </div>
         </div>
@@ -388,7 +389,7 @@ export function WestBridgeServicesPage() {
                 <div>
                   <h3>{item.title}</h3>
                   <p>{item.text}</p>
-                  <Link to="/login?mode=register">Apply now</Link>
+                  <Link to="/auth?mode=register">Apply now</Link>
                 </div>
               </article>
             ))}
@@ -433,8 +434,8 @@ export function WestBridgeContactPage() {
                 will reply within 24 hours.
               </p>
               <div className={styles.heroActions}>
-                <Link className={styles.primaryLink} to="/login?mode=register">Open Account</Link>
-                <Link className={styles.secondaryLink} to="/login?mode=login">Account Login</Link>
+                <Link className={styles.primaryLink} to="/auth?mode=register">Open Account</Link>
+                <Link className={styles.secondaryLink} to="/auth?mode=login">Account Login</Link>
               </div>
             </div>
             <div className={styles.mapCard}>

@@ -180,6 +180,10 @@ body {
   margin-bottom: 22px;
 }
 
+.modeTabs:has(button:only-child) {
+  grid-template-columns: 1fr;
+}
+
 .modeTabs button {
   height: 38px;
   border: 0;
@@ -194,6 +198,32 @@ body {
   background: #ffffff;
   color: #881337;
   box-shadow: 0 10px 24px rgba(225, 29, 72, 0.12);
+}
+
+.adminBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(225, 29, 72, 0.14);
+  background: rgba(225, 29, 72, 0.06);
+  margin-bottom: 14px;
+}
+
+.adminBadge span {
+  color: #881337;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.adminBadge small {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .registrationForm {

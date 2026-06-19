@@ -110,26 +110,8 @@ router.get('/settings/bank-name', authenticateToken, (req, res) => {
 });
 // 🔁 Update user profile
 router.put('/profile/update', authenticateToken, (req, res) => {
-  const userId = req.user.id;
-  const { full_name, username, account_title } = req.body;
-  const nextFullName = (account_title ?? full_name ?? '').trim();
-  const nextUsername = (username ?? '').trim();
-
-  if (!nextFullName || !nextUsername) {
-    return res.status(400).json({ error: 'Account title and username are required' });
-  }
-
-  const updateQuery = `
-    UPDATE users 
-    SET full_name = ?, username = ?
-    WHERE id = ?
-  `;
-
-  db.query(updateQuery, [nextFullName, nextUsername, userId], async (err, result) => {
-    if (err) return res.status(500).json({ error: 'Failed to update user profile' });
-
-    await logActivity(userId, 'profile_update', `Updated profile details`);
-    res.json({ message: 'Profile updated successfully' });
+  return res.status(403).json({
+    error: 'Account details cannot be changed after registration. Please contact bank support for authorization.',
   });
 });
 

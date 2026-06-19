@@ -100,8 +100,8 @@ export default function MorePage() {
       path: "/loans",
     },
     {
-      title: "Bills & Airtime",
-      subtitle: "Pay utilities, tax, mortgage, and airtime requests.",
+      title: "Top-Up",
+      subtitle: "Submit utility, mortgage, tax, and airtime funding requests.",
       icon: <FiPhone />,
       path: "/bills-airtime",
     },
