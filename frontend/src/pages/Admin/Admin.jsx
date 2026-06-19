@@ -10,6 +10,7 @@ import {
   FiMenu,
   FiSettings,
   FiShield,
+  FiShuffle,
   FiUsers,
   FiX,
 } from "react-icons/fi";
@@ -24,6 +25,7 @@ const sections = [
   { path: "/admin/onboarding", label: "Onboarding", icon: FiShield },
   { path: "/admin/users", label: "Users", icon: FiUsers },
   { path: "/admin/transfers", label: "Transfers", icon: FiDollarSign },
+  { path: "/admin/simulate-transactions", label: "Simulate", icon: FiShuffle },
   { path: "/admin/deposits", label: "Deposits", icon: FiCreditCard },
   { path: "/admin/atm-cards", label: "ATM Cards", icon: FiCreditCard },
   { path: "/admin/loans", label: "Loans", icon: FiFileText },

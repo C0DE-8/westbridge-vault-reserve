@@ -2200,6 +2200,26 @@ router.put("/transfers/:id", authenticateToken, checkAdmin, async (req, res) => 
   }
 });
 
+// DELETE transfer (admin only)
+router.delete("/transfers/:id", authenticateToken, checkAdmin, async (req, res) => {
+  try {
+    const transferId = Number(req.params.id) || 0;
+    if (!transferId) return res.status(400).json({ error: "Invalid transfer id" });
+
+    const [exists] = await db.promise().query(
+      `SELECT id FROM transfers WHERE id = ? LIMIT 1`,
+      [transferId]
+    );
+    if (!exists.length) return res.status(404).json({ error: "Transfer not found" });
+
+    await db.promise().query(`DELETE FROM transfers WHERE id = ? LIMIT 1`, [transferId]);
+    return res.json({ message: "Transfer deleted successfully" });
+  } catch (e) {
+    console.error("❌ admin transfer delete error:", e);
+    res.status(500).json({ error: "Failed to delete transfer" });
+  }
+});
+
 
 // 💰 Admin — Add Wallet Address & QR
 router.post('/wallets', authenticateToken, checkAdmin, walletUpload.single('qrcode'), async (req, res) => {

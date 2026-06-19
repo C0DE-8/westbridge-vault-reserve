@@ -723,6 +723,12 @@
   margin-bottom: 16px;
 }
 
+.simGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(180px, 1fr));
+  gap: 14px;
+}
+
 .paginationBar {
   display: flex;
   align-items: center;
@@ -1532,6 +1538,7 @@
   .adminDetailGrid,
   .transferControlGrid,
   .atmFeeGrid,
+  .simGrid,
   .transferFilters {
     grid-template-columns: 1fr;
   }
@@ -1596,6 +1603,7 @@
   .settingsFormGrid,
   .transferControlGrid,
   .atmFeeGrid,
+  .simGrid,
   .transferFilters {
     grid-template-columns: 1fr;
   }

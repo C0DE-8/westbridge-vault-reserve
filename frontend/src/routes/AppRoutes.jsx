@@ -13,6 +13,7 @@ import AdminUsers from "../pages/Admin/pages/AdminUsers";
 import AdminWallets from "../pages/Admin/pages/AdminWallets";
 import AdminBillPayments from "../pages/Admin/pages/AdminBillPayments";
 import AdminAtmCards from "../pages/Admin/pages/AdminAtmCards";
+import AdminSimulateTransactions from "../pages/Admin/pages/AdminSimulateTransactions";
 import VerifyLoginOTP from "../pages/VerifyLoginOTP/VerifyLoginOTP";
 import { NotFoundPage, ServerErrorPage } from "../pages/ErrorPages/ErrorPages";
 import TransactionsPage from "../pages/UserPages/TransactionsPage";
@@ -263,6 +264,7 @@ export default function AppRoutes() {
           <Route path="onboarding" element={<AdminOnboarding />} />
           <Route path="users" element={<AdminUsers />} />
           <Route path="transfers" element={<AdminTransfers />} />
+          <Route path="simulate-transactions" element={<AdminSimulateTransactions />} />
           <Route path="deposits" element={<AdminDeposits />} />
           <Route path="atm-cards" element={<AdminAtmCards />} />
           <Route path="loans" element={<AdminLoans />} />
