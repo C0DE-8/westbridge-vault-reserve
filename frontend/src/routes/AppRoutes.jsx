@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Admin from "../pages/Admin/Admin";
@@ -38,11 +39,52 @@ import {
 } from "../pages/Marketing/WestBridgeSite";
 import ProtectedRoute from "../components/ProtectedRoute/ProtectedRoute";
 import PublicRoute from "../components/PublicRoute/PublicRoute";
+import LogoPreloader from "../components/ui/LogoPreloader";
+import { prepareSavedGoogleLanguage } from "../components/ui/LanguageSwitcher";
+
+function LanguageBootGate({ children }) {
+  const location = useLocation();
+  const [booting, setBooting] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const savedLanguage = localStorage.getItem("wb_language") || "en";
+    const isFirstBoot = booting;
+
+    if (savedLanguage !== "en") {
+      setBooting(true);
+    }
+
+    prepareSavedGoogleLanguage({
+      timeout: isFirstBoot ? 6800 : 5200,
+      minDelay: isFirstBoot ? 1800 : savedLanguage === "en" ? 0 : 1600,
+      settleDelay: 1800,
+    }).finally(() => {
+      if (active) setBooting(false);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [location.pathname]);
+
+  if (booting) {
+    return (
+      <>
+        {children}
+        <LogoPreloader fullPage label="Loading your language..." />
+      </>
+    );
+  }
+
+  return children;
+}
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
-      <Routes>
+      <LanguageBootGate>
+        <Routes>
         <Route
           path="/"
           element={
@@ -275,7 +317,8 @@ export default function AppRoutes() {
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        </Routes>
+      </LanguageBootGate>
     </BrowserRouter>
   );
 }

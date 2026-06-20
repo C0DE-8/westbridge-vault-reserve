@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { registerUser } from "../../api/authApi";
 import GlassToast, { useGlassToast } from "../../components/Toast/GlassToast";
+import LogoPreloader from "../../components/ui/LogoPreloader";
 import styles from "./Login.module.css";
 
 const ONBOARDING_DRAFT_KEY = "stercxa_onboarding_draft";
@@ -449,6 +450,7 @@ export default function Login() {
 
   return (
     <div className={styles.loginPage}>
+      {loading ? <LogoPreloader overlay label={mode === "login" ? "Signing you in..." : "Submitting application..."} /> : null}
       <div className={styles.backgroundGlowOne}></div>
       <div className={styles.backgroundGlowTwo}></div>
       <div className={styles.backgroundGrid}></div>

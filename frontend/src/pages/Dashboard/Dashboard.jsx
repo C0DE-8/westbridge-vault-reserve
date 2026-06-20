@@ -16,6 +16,7 @@ import {
 import axiosInstance from "../../api/axios";
 import MobileFooterNav from "../../components/Dashboard/MobileFooterNav";
 import UserSettingsDrawer from "../../components/Dashboard/UserSettingsDrawer";
+import LogoPreloader from "../../components/ui/LogoPreloader";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
@@ -269,6 +270,7 @@ export default function Dashboard() {
 
   return (
     <div className={styles.dashboardPage}>
+      {profileLoading && transactionsLoading ? <LogoPreloader overlay label="Loading dashboard..." /> : null}
       <aside className={styles.sidebar}>
         <div className={styles.brandBlock}>
           <div className={styles.brandLogo}>

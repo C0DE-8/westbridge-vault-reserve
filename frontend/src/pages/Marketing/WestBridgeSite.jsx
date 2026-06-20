@@ -2,11 +2,23 @@ import { useEffect, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import {
   FiArrowRight,
+  FiCheckCircle,
+  FiBriefcase,
   FiClock,
+  FiCreditCard,
+  FiDollarSign,
+  FiFileText,
+  FiGlobe,
+  FiHelpCircle,
+  FiHome,
+  FiLock,
   FiMenu,
   FiMapPin,
   FiPhone,
+  FiRefreshCw,
+  FiSend,
   FiShield,
+  FiSmartphone,
   FiTrendingUp,
   FiUsers,
   FiX,
@@ -49,6 +61,78 @@ const serviceItems = [
     text: "Working capital, treasury support, and account services for growth.",
     image: asset("service/service-details.jpg"),
   },
+];
+
+const bankingHighlights = [
+  {
+    icon: FiLock,
+    title: "Protected digital banking",
+    text: "Sign in securely, review balances, manage transfers, and keep account activity visible from one private dashboard.",
+  },
+  {
+    icon: FiRefreshCw,
+    title: "Local and wire transfers",
+    text: "Move money with controlled verification steps, transfer history, beneficiary details, and account-level confirmation.",
+  },
+  {
+    icon: FiCreditCard,
+    title: "Card and ATM support",
+    text: "Request ATM cards, track card status, and manage everyday access to funds with clear service updates.",
+  },
+  {
+    icon: FiDollarSign,
+    title: "Loans and funding",
+    text: "Explore personal, business, education, agriculture, mortgage, and operational funding support in one place.",
+  },
+];
+
+const bankingSteps = [
+  "Open an account with guided onboarding and document review.",
+  "Receive account details after administrative approval.",
+  "Fund your account and manage activity from the customer dashboard.",
+  "Use transfers, deposits, loans, cards, tickets, and secure alerts as needed.",
+];
+
+const productPillars = [
+  {
+    icon: FiSmartphone,
+    title: "Personal online banking",
+    text: "View balances, manage deposits, review account activity, and keep your profile information organized from a secure dashboard.",
+  },
+  {
+    icon: FiBriefcase,
+    title: "Business account services",
+    text: "Support for operating accounts, working capital needs, treasury activity, and financial movement across business priorities.",
+  },
+  {
+    icon: FiHome,
+    title: "Mortgage and property funding",
+    text: "Structured lending guidance for home purchase, investment property, and long-term property financing decisions.",
+  },
+  {
+    icon: FiSend,
+    title: "Domestic and wire payments",
+    text: "Local transfer and wire transfer workflows with verification, fee visibility, status tracking, and customer history.",
+  },
+  {
+    icon: FiFileText,
+    title: "Deposits and loan requests",
+    text: "Submit deposit records, request loans, upload supporting details, and follow the review process from your account.",
+  },
+  {
+    icon: FiHelpCircle,
+    title: "Customer support center",
+    text: "Open support tickets, receive replies, and keep important conversations connected to your banking profile.",
+  },
+];
+
+const assuranceItems = [
+  "Encrypted access with account-level verification",
+  "Administrative review for new account onboarding",
+  "Login alert emails with device and location details",
+  "Transfer requirements for COT, IMF, TAX, and related codes when enabled",
+  "Clear records for deposits, loans, transfers, cards, and support tickets",
+  "Multi-language access powered by Google Translate",
 ];
 
 function MarketingLayout({ children, activePath }) {
@@ -261,6 +345,60 @@ export function WestBridgeHomePage() {
         <div className={styles.container}>
           <div className={styles.sectionHead}>
             <div>
+              <span className={styles.kicker}>Digital banking</span>
+              <h2>Everything customers need to manage money with confidence</h2>
+            </div>
+            <p>
+              West Bridge Vault Reserve brings core banking tools into one secure
+              online experience for everyday users, business owners, and customers
+              managing larger financial plans.
+            </p>
+          </div>
+          <div className={styles.featureGrid}>
+            {bankingHighlights.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <article className={styles.featureCard} style={{ "--delay": `${index * 90}ms` }} key={item.title}>
+                  <span className={styles.featureIcon}><Icon /></span>
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.motionBand}>
+        <div className={`${styles.container} ${styles.motionGrid}`}>
+          <div className={styles.motionCopy}>
+            <span className={styles.kicker}>Account journey</span>
+            <h2>From application to active banking, every step is clear</h2>
+            <p>
+              Customers can apply online, wait for review, receive account details,
+              and continue into secure banking tools without unnecessary confusion.
+            </p>
+            <div className={styles.heroActions}>
+              <Link className={styles.primaryLink} to="/auth?mode=register">Start Application</Link>
+              <Link className={styles.secondaryHeroLink} to="/services">View Services</Link>
+            </div>
+          </div>
+          <div className={styles.processStack}>
+            {bankingSteps.map((step, index) => (
+              <article className={styles.processItem} style={{ "--delay": `${index * 120}ms` }} key={step}>
+                <strong>{String(index + 1).padStart(2, "0")}</strong>
+                <p>{step}</p>
+                <FiCheckCircle />
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.container}>
+          <div className={styles.sectionHead}>
+            <div>
               <span className={styles.kicker}>Projects</span>
               <h2>Over 1000 projects completed</h2>
             </div>
@@ -279,6 +417,91 @@ export function WestBridgeHomePage() {
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.darkHomeSection}>
+        <div className={styles.container}>
+          <div className={styles.darkSectionHead}>
+            <span className={styles.kicker}>Banking solutions</span>
+            <h2>More than an account: a full digital banking relationship</h2>
+            <p>
+              Our public banking experience is designed to explain the services customers
+              can use after onboarding, from everyday account access to business support,
+              cards, deposits, loans, and secure transfers.
+            </p>
+          </div>
+          <div className={styles.productGrid}>
+            {productPillars.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <article className={styles.productCard} style={{ "--delay": `${index * 70}ms` }} key={item.title}>
+                  <Icon />
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.section}>
+        <div className={`${styles.container} ${styles.assuranceGrid}`}>
+          <div className={styles.assuranceCopy}>
+            <span className={styles.kicker}>Bank with clarity</span>
+            <h2>Designed around visibility, approval control, and customer confidence</h2>
+            <p>
+              Customers should understand what their bank can do before they sign in.
+              West Bridge Vault Reserve presents clear account services, secure login,
+              transfer controls, and support access so users know how to move forward.
+            </p>
+            <div className={styles.assuranceActions}>
+              <Link className={styles.primaryLink} to="/auth?mode=register">Open Account</Link>
+              <Link className={styles.secondaryLink} to="/contact">Talk to Support</Link>
+            </div>
+          </div>
+          <div className={styles.assuranceList}>
+            {assuranceItems.map((item) => (
+              <span key={item}><FiCheckCircle /> {item}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.sectionAlt}>
+        <div className={`${styles.container} ${styles.securitySplit}`}>
+          <div className={styles.securityPanel}>
+            <span className={styles.kicker}>Security and visibility</span>
+            <h2>Built for customers who want control over every account action</h2>
+            <p>
+              Secure login alerts, transaction verification, transfer requirements,
+              support tickets, and activity history help customers understand what
+              is happening across their account.
+            </p>
+            <div className={styles.securityList}>
+              <span><FiShield /> Login alerts and OTP protection</span>
+              <span><FiGlobe /> Multi-language site support</span>
+              <span><FiClock /> Transfer and deposit history</span>
+              <span><FiUsers /> Human support through tickets</span>
+            </div>
+          </div>
+          <div className={styles.dashboardPreview}>
+            <div className={styles.previewTop}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div className={styles.previewBalance}>
+              <small>Available balance</small>
+              <strong>$48,920.00</strong>
+            </div>
+            <div className={styles.previewRows}>
+              <span><b></b><em></em></span>
+              <span><b></b><em></em></span>
+              <span><b></b><em></em></span>
+            </div>
           </div>
         </div>
       </section>
