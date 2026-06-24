@@ -32,6 +32,10 @@ CREATE TABLE `accounts` (
   `user_id` int(11) NOT NULL,
   `s_account_number` varchar(20) NOT NULL,
   `c_account_number` varchar(20) NOT NULL,
+  `routing_name` varchar(120) DEFAULT NULL,
+  `routing_number` varchar(32) DEFAULT NULL,
+  `routing_type` varchar(40) DEFAULT 'ABA',
+  `routing_assigned_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -39,10 +43,10 @@ CREATE TABLE `accounts` (
 -- Dumping data for table `accounts`
 --
 
-INSERT INTO `accounts` (`id`, `user_id`, `s_account_number`, `c_account_number`, `created_at`) VALUES
-(1, 9, '81192528959', '01517267735', '2025-08-07 19:21:54'),
-(2, 2, '9876543210', '0123456789', '2025-10-05 00:15:14'),
-(5, 14, '81349126590', '01702787084', '2025-10-05 01:48:13');
+INSERT INTO `accounts` (`id`, `user_id`, `s_account_number`, `c_account_number`, `routing_name`, `routing_number`, `routing_type`, `routing_assigned_at`, `created_at`) VALUES
+(1, 9, '81192528959', '01517267735', NULL, NULL, 'ABA', NULL, '2025-08-07 19:21:54'),
+(2, 2, '9876543210', '0123456789', NULL, NULL, 'ABA', NULL, '2025-10-05 00:15:14'),
+(5, 14, '81349126590', '01702787084', NULL, NULL, 'ABA', NULL, '2025-10-05 01:48:13');
 
 -- --------------------------------------------------------
 
@@ -723,6 +727,7 @@ ALTER TABLE `accounts`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `s_account_number` (`s_account_number`),
   ADD UNIQUE KEY `c_account_number` (`c_account_number`),
+  ADD KEY `idx_accounts_routing_number` (`routing_number`),
   ADD KEY `user_id` (`user_id`);
 
 --

@@ -35,6 +35,18 @@ function generateSavingsAccountNumber() {
   return '81' + Math.floor(100000000 + Math.random() * 900000000); // e.g. 81XXXXXXXXX
 }
 
+function generateRoutingNumber() {
+  const weights = [3, 7, 1, 3, 7, 1, 3, 7];
+  const digits = Array.from({ length: 8 }, () => Math.floor(Math.random() * 10));
+  const sum = digits.reduce((total, digit, index) => total + digit * weights[index], 0);
+  const checkDigit = (10 - (sum % 10)) % 10;
+  return `${digits.join('')}${checkDigit}`;
+}
+
+const cleanRoutingValue = (value) => {
+  if (isNil(value)) return value;
+  return String(value).trim();
+};
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -75,7 +87,11 @@ const SELECT_USER_JOIN = `
     u.is_admin,
     IFNULL(i.image_url, '') AS profile_image_url,
     a.c_account_number,
-    a.s_account_number
+    a.s_account_number,
+    a.routing_name,
+    a.routing_number,
+    a.routing_type,
+    a.routing_assigned_at
   FROM users u
   LEFT JOIN user_images i ON u.id = i.user_id
   LEFT JOIN accounts a ON u.id = a.user_id
@@ -163,7 +179,11 @@ router.get('/profile', authenticateToken, checkAdmin, (req, res) => {
       u.is_admin,
       IFNULL(i.image_url, '') AS profile_image_url,
       a.c_account_number,
-      a.s_account_number
+      a.s_account_number,
+      a.routing_name,
+      a.routing_number,
+      a.routing_type,
+      a.routing_assigned_at
     FROM users u
     LEFT JOIN user_images i ON u.id = i.user_id
     LEFT JOIN accounts a ON u.id = a.user_id
@@ -491,7 +511,8 @@ router.post('/users/:id/impersonate', authenticateToken, checkAdmin, (req, res) 
             u.current_balance, u.savings_balance, u.loan_balance,
             u.acct_status, u.email_verified, u.currency_sign,
             IFNULL(i.image_url, '') AS profile_image_url,
-            a.c_account_number, a.s_account_number
+            a.c_account_number, a.s_account_number,
+            a.routing_name, a.routing_number, a.routing_type, a.routing_assigned_at
           FROM users u
           LEFT JOIN user_images i ON u.id = i.user_id
           LEFT JOIN accounts a ON u.id = a.user_id
@@ -555,7 +576,7 @@ router.get('/users', authenticateToken, checkAdmin, (req, res) => {
   }
 
   if (q) {
-    // search by name/email/account numbers
+    // search by name/email/account numbers/routing details
     where.push(`
       (
         u.full_name LIKE ? OR
@@ -563,11 +584,13 @@ router.get('/users', authenticateToken, checkAdmin, (req, res) => {
         u.email     LIKE ? OR
         u.account_number LIKE ? OR
         a.c_account_number LIKE ? OR
-        a.s_account_number LIKE ?
+        a.s_account_number LIKE ? OR
+        a.routing_name LIKE ? OR
+        a.routing_number LIKE ?
       )
     `);
     const like = `%${q}%`;
-    params.push(like, like, like, like, like, like);
+    params.push(like, like, like, like, like, like, like, like);
   }
 
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
@@ -603,7 +626,11 @@ router.get('/users', authenticateToken, checkAdmin, (req, res) => {
         u.currency_sign,
         IFNULL(i.image_url, '') AS profile_image_url,
         a.c_account_number,
-        a.s_account_number
+        a.s_account_number,
+        a.routing_name,
+        a.routing_number,
+        a.routing_type,
+        a.routing_assigned_at
       FROM users u
       LEFT JOIN user_images i ON u.id = i.user_id
       LEFT JOIN accounts a ON u.id = a.user_id
@@ -637,7 +664,8 @@ router.patch('/users/:id', authenticateToken, checkAdmin, (req, res) => {
   const {
     full_name, username, email, currency_sign, acct_status,
     email_verified, current_balance, savings_balance, loan_balance,
-    profile_image_url, c_account_number, s_account_number
+    profile_image_url, c_account_number, s_account_number,
+    routing_name, routing_number, routing_type, generate_routing
   } = req.body || {};
 
   if (!isNil(acct_status) && !ALLOWED_ACCOUNT_STATUS.has(String(acct_status).trim().toLowerCase())) {
@@ -659,7 +687,14 @@ router.patch('/users/:id', authenticateToken, checkAdmin, (req, res) => {
   if (!isNil(loan_balance))    { parts.push('loan_balance = ?');    vals.push(Number(loan_balance)); }
 
   const wantsImage = !isNil(profile_image_url);
-  const wantsAccounts = !isNil(c_account_number) || !isNil(s_account_number);
+  const nextRoutingNumber = generate_routing ? generateRoutingNumber() : cleanRoutingValue(routing_number);
+  const wantsAccounts =
+    !isNil(c_account_number) ||
+    !isNil(s_account_number) ||
+    !isNil(routing_name) ||
+    !isNil(routing_number) ||
+    !isNil(routing_type) ||
+    !!generate_routing;
 
   if (parts.length === 0 && !wantsImage && !wantsAccounts) {
     return res.status(400).json({ error: 'No update fields provided' });
@@ -701,6 +736,13 @@ router.patch('/users/:id', authenticateToken, checkAdmin, (req, res) => {
       const setVals  = [];
       if (!isNil(c_account_number)) { setParts.push('c_account_number = ?'); setVals.push(c_account_number); }
       if (!isNil(s_account_number)) { setParts.push('s_account_number = ?'); setVals.push(s_account_number); }
+      if (!isNil(routing_name)) { setParts.push('routing_name = ?'); setVals.push(cleanRoutingValue(routing_name)); }
+      if (!isNil(routing_type)) { setParts.push('routing_type = ?'); setVals.push(cleanRoutingValue(routing_type) || 'ABA'); }
+      if (!isNil(routing_number) || generate_routing) {
+        setParts.push('routing_number = ?');
+        setVals.push(nextRoutingNumber);
+        setParts.push('routing_assigned_at = NOW()');
+      }
 
       // If somehow neither provided, skip
       if (setParts.length === 0) return cb(null);
@@ -713,11 +755,22 @@ router.patch('/users/:id', authenticateToken, checkAdmin, (req, res) => {
           if (r.affectedRows > 0) return cb(null);
 
           // Insert if missing
-          const cols = ['user_id'];
-          const qs   = ['?'];
-          const ivs  = [userId];
-          if (!isNil(c_account_number)) { cols.push('c_account_number'); qs.push('?'); ivs.push(c_account_number); }
-          if (!isNil(s_account_number)) { cols.push('s_account_number'); qs.push('?'); ivs.push(s_account_number); }
+          const cols = ['user_id', 's_account_number', 'c_account_number'];
+          const qs   = ['?', '?', '?'];
+          const ivs  = [
+            userId,
+            !isNil(s_account_number) ? s_account_number : generateSavingsAccountNumber(),
+            !isNil(c_account_number) ? c_account_number : generateCurrentAccountNumber()
+          ];
+          if (!isNil(routing_name)) { cols.push('routing_name'); qs.push('?'); ivs.push(cleanRoutingValue(routing_name)); }
+          if (!isNil(routing_type)) { cols.push('routing_type'); qs.push('?'); ivs.push(cleanRoutingValue(routing_type) || 'ABA'); }
+          if (!isNil(routing_number) || generate_routing) {
+            cols.push('routing_number');
+            qs.push('?');
+            ivs.push(nextRoutingNumber);
+            cols.push('routing_assigned_at');
+            qs.push('NOW()');
+          }
 
           db.query(
             `INSERT INTO accounts (${cols.join(',')}) VALUES (${qs.join(',')})`,
@@ -820,7 +873,11 @@ router.get('/onboarding/:id', authenticateToken, checkAdmin, async (req, res) =>
           u.acct_status,
           u.email_verified,
           a.c_account_number,
-          a.s_account_number
+          a.s_account_number,
+          a.routing_name,
+          a.routing_number,
+          a.routing_type,
+          a.routing_assigned_at
         FROM user_onboarding o
         JOIN users u ON u.id = o.user_id
         LEFT JOIN accounts a ON a.user_id = u.id
@@ -1014,7 +1071,11 @@ router.get('/users/:id', authenticateToken, checkAdmin, (req, res) => {
       u.currency_sign,
       IFNULL(i.image_url, '') AS profile_image_url,
       a.c_account_number,
-      a.s_account_number
+      a.s_account_number,
+      a.routing_name,
+      a.routing_number,
+      a.routing_type,
+      a.routing_assigned_at
     FROM users u
     LEFT JOIN user_images i ON u.id = i.user_id
     LEFT JOIN accounts a ON u.id = a.user_id

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiCheckCircle, FiSettings, FiUploadCloud, FiUser, FiXCircle } from "react-icons/fi";
+import { FiArrowLeft, FiCopy, FiSettings, FiUploadCloud, FiUser, FiXCircle } from "react-icons/fi";
 import axiosInstance from "../../api/axios";
 import MobileFooterNav from "../../components/Dashboard/MobileFooterNav";
 import UserSettingsDrawer from "../../components/Dashboard/UserSettingsDrawer";
@@ -99,6 +99,20 @@ export default function ProfilePage() {
     }
   };
 
+  const copyValue = async (label, value) => {
+    if (!value) {
+      notify(`${label} is not available yet.`, "info", "Not assigned");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(String(value));
+      notify(`${label} copied.`, "success", "Copied");
+    } catch {
+      notify(`Unable to copy ${label.toLowerCase()}.`, "error", "Copy failed");
+    }
+  };
+
   return (
     <main className={styles.page}>
       <GlassToast toasts={toasts} onDismiss={dismissToast} />
@@ -169,6 +183,48 @@ export default function ProfilePage() {
                 <div><span>Username</span><strong>{profile?.username || "Not set"}</strong></div>
                 <div><span>Email</span><strong>{profile?.email || "Not set"}</strong></div>
                 <div><span>Support route</span><strong>Contact West Bridge support for authorized changes</strong></div>
+              </div>
+            </section>
+
+            <section className={styles.panel}>
+              <div className={styles.panelHead}>
+                <div>
+                  <h2>Bank Routing Details</h2>
+                  <p>Use these details when a bank or payment provider asks for your routing information.</p>
+                </div>
+              </div>
+
+              <div className={styles.copyGrid}>
+                <button type="button" onClick={() => copyValue("Account title", profile?.full_name)}>
+                  <span>Account title</span>
+                  <strong>{profile?.full_name || "Not set"}</strong>
+                  <FiCopy />
+                </button>
+                <button type="button" onClick={() => copyValue("Current account number", profile?.c_account_number)}>
+                  <span>Current account</span>
+                  <strong>{profile?.c_account_number || "Pending"}</strong>
+                  <FiCopy />
+                </button>
+                <button type="button" onClick={() => copyValue("Savings account number", profile?.s_account_number)}>
+                  <span>Savings account</span>
+                  <strong>{profile?.s_account_number || "Pending"}</strong>
+                  <FiCopy />
+                </button>
+                <button type="button" onClick={() => copyValue("Routing name", profile?.routing_name)}>
+                  <span>Routing name</span>
+                  <strong>{profile?.routing_name || "Not assigned"}</strong>
+                  <FiCopy />
+                </button>
+                <button type="button" onClick={() => copyValue("Routing number", profile?.routing_number)}>
+                  <span>{profile?.routing_type || "Routing"} number</span>
+                  <strong>{profile?.routing_number || "Not assigned"}</strong>
+                  <FiCopy />
+                </button>
+                <button type="button" onClick={() => copyValue("Routing type", profile?.routing_type)}>
+                  <span>Routing type</span>
+                  <strong>{profile?.routing_type || "Not assigned"}</strong>
+                  <FiCopy />
+                </button>
               </div>
             </section>
 

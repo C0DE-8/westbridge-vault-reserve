@@ -31,6 +31,10 @@ const INITIAL_EDIT = {
   loan_balance: "0",
   c_account_number: "",
   s_account_number: "",
+  routing_name: "",
+  routing_number: "",
+  routing_type: "ABA",
+  generate_routing: false,
 };
 
 const INITIAL_CREATE = {
@@ -125,6 +129,10 @@ export default function AdminUsers() {
       loan_balance: String(user.loan_balance ?? "0"),
       c_account_number: user.c_account_number || "",
       s_account_number: user.s_account_number || "",
+      routing_name: user.routing_name || "",
+      routing_number: user.routing_number || "",
+      routing_type: user.routing_type || "ABA",
+      generate_routing: false,
     });
     setEditImageFile(null);
   };
@@ -398,6 +406,7 @@ export default function AdminUsers() {
                         <strong>{item.account_number || "Pending"}</strong>
                         <small>Current: {item.c_account_number || "N/A"}</small>
                         <small>Savings: {item.s_account_number || "N/A"}</small>
+                        <small>Routing: {item.routing_number || "Not assigned"}</small>
                       </span>
 
                       <span>
@@ -469,6 +478,7 @@ export default function AdminUsers() {
                         <strong>{item.account_number || "Pending"}</strong>
                         <small>Current: {item.c_account_number || "N/A"}</small>
                         <small>Savings: {item.s_account_number || "N/A"}</small>
+                        <small>Routing: {item.routing_number || "Not assigned"}</small>
                       </div>
                       <div>
                         <span>Balances</span>
@@ -585,6 +595,43 @@ export default function AdminUsers() {
                   <span>Savings account number</span>
                   <input value={editForm.s_account_number} onChange={(event) => setEditForm((current) => ({ ...current, s_account_number: event.target.value }))} />
                 </label>
+                <label className={styles.field}>
+                  <span>Routing name</span>
+                  <input
+                    value={editForm.routing_name}
+                    onChange={(event) => setEditForm((current) => ({ ...current, routing_name: event.target.value }))}
+                    placeholder="West Bridge Vault Reserve"
+                  />
+                </label>
+                <label className={styles.field}>
+                  <span>Routing type</span>
+                  <select value={editForm.routing_type} onChange={(event) => setEditForm((current) => ({ ...current, routing_type: event.target.value }))}>
+                    <option value="ABA">ABA routing</option>
+                    <option value="ACH">ACH routing</option>
+                    <option value="WIRE">Wire routing</option>
+                    <option value="SORT_CODE">Sort code</option>
+                    <option value="SWIFT">SWIFT/BIC</option>
+                  </select>
+                </label>
+                <label className={styles.field}>
+                  <span>Routing number</span>
+                  <input
+                    value={editForm.routing_number}
+                    onChange={(event) => setEditForm((current) => ({ ...current, routing_number: event.target.value, generate_routing: false }))}
+                    placeholder={editForm.generate_routing ? "Will be generated on save" : "Assign routing number"}
+                  />
+                </label>
+                <div className={styles.field}>
+                  <span>Routing generator</span>
+                  <button
+                    type="button"
+                    className={styles.secondaryBtn}
+                    onClick={() => setEditForm((current) => ({ ...current, routing_number: "", generate_routing: true, routing_type: current.routing_type || "ABA" }))}
+                  >
+                    <FiRefreshCw />
+                    <span>{editForm.generate_routing ? "Generation queued" : "Generate on save"}</span>
+                  </button>
+                </div>
                 <label className={`${styles.field} ${styles.fieldFull}`}>
                   <span>Profile image upload</span>
                   <input
@@ -634,6 +681,14 @@ export default function AdminUsers() {
                 <strong>{viewingUser.account_number || "Pending"}</strong>
                 <small>Current: {viewingUser.c_account_number || "N/A"}</small>
                 <small>Savings: {viewingUser.s_account_number || "N/A"}</small>
+                <small>Routing: {viewingUser.routing_number || "Not assigned"}</small>
+              </div>
+              <div className={styles.adminDetailCard}>
+                <span>Routing details</span>
+                <strong>{viewingUser.routing_name || "Not assigned"}</strong>
+                <small>Number: {viewingUser.routing_number || "N/A"}</small>
+                <small>Type: {viewingUser.routing_type || "N/A"}</small>
+                <small>Assigned: {viewingUser.routing_assigned_at ? new Date(viewingUser.routing_assigned_at).toLocaleString() : "N/A"}</small>
               </div>
               <div className={styles.adminDetailCard}>
                 <span>Balances</span>

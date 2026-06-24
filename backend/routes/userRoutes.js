@@ -89,7 +89,11 @@ router.get('/profile', authenticateToken, (req, res) => {
       u.currency_sign,
       IFNULL(i.image_url, '') AS profile_image_url,
       a.c_account_number,
-      a.s_account_number
+      a.s_account_number,
+      a.routing_name,
+      a.routing_number,
+      a.routing_type,
+      a.routing_assigned_at
     FROM users u
     LEFT JOIN user_images i ON u.id = i.user_id
     LEFT JOIN accounts a ON u.id = a.user_id
