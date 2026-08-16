@@ -959,6 +959,10 @@
   outline: none;
 }
 
+.formStack input[type="file"] {
+  padding: 10px;
+}
+
 .formStack textarea,
 .replyForm textarea {
   min-height: 124px;
@@ -967,10 +971,50 @@
   font: inherit;
 }
 
+.fieldHint {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.inlineFileInput {
+  min-height: 44px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.34);
+  color: var(--text);
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.inlineFileInput span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inlineFileInput input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 [data-theme="dark"] .formStack input,
 [data-theme="dark"] .formStack textarea,
 [data-theme="dark"] .replyForm textarea,
-[data-theme="dark"] .secondaryButton {
+[data-theme="dark"] .secondaryButton,
+[data-theme="dark"] .inlineFileInput {
   background: rgba(15, 23, 42, 0.46);
 }
 
@@ -1032,6 +1076,48 @@
 .messageBubble small {
   margin-top: 10px;
   color: var(--text-soft);
+}
+
+.attachmentPreview {
+  margin-top: 10px;
+  width: min(100%, 360px);
+  min-height: 58px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.48);
+  color: var(--text);
+  text-decoration: none;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.attachmentPreview img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+}
+
+.attachmentPreview span {
+  min-width: 0;
+}
+
+.attachmentPreview strong,
+.attachmentPreview small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachmentIcon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
 }
 
 .messageBubbleUser {

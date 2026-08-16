@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import {
   FiArrowLeft,
   FiLifeBuoy,
+  FiPaperclip,
+  FiFileText,
   FiMessageCircle,
   FiPlus,
   FiSend,
@@ -15,12 +17,60 @@ import UserSettingsDrawer from "../../components/Dashboard/UserSettingsDrawer";
 import GlassToast, { useGlassToast } from "../../components/Toast/GlassToast";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
+import { API_ORIGIN } from "../../api/axios";
 import styles from "./FinancePages.module.css";
 
 const initialForm = {
   subject: "",
   message: "",
 };
+
+const formatSupportDate = (value) => {
+  if (!value) return "N/A";
+  const normalized = typeof value === "string" && !value.includes("T") ? value.replace(" ", "T") : value;
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  }).format(date);
+};
+
+const resolveAttachmentUrl = (url) => {
+  if (!url) return "";
+  if (url.startsWith("http")) return url;
+  return `${API_ORIGIN}${url}`;
+};
+
+const formatFileSize = (bytes) => {
+  const size = Number(bytes);
+  if (!size) return "";
+  if (size < 1024 * 1024) return `${Math.round(size / 1024)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+function AttachmentPreview({ message }) {
+  if (!message?.attachment_url) return null;
+  const url = resolveAttachmentUrl(message.attachment_url);
+  const isImage = String(message.attachment_type || "").startsWith("image/");
+
+  return (
+    <a className={styles.attachmentPreview} href={url} target="_blank" rel="noreferrer">
+      {isImage ? (
+        <img src={url} alt={message.attachment_name || "Support attachment"} />
+      ) : (
+        <span className={styles.attachmentIcon}><FiFileText /></span>
+      )}
+      <span>
+        <strong>{message.attachment_name || "Attachment"}</strong>
+        <small>{message.attachment_type || "File"} {formatFileSize(message.attachment_size)}</small>
+      </span>
+    </a>
+  );
+}
 
 export default function SupportPage() {
   const navigate = useNavigate();
@@ -37,7 +87,9 @@ export default function SupportPage() {
   const [replying, setReplying] = useState(false);
   const [closingId, setClosingId] = useState(null);
   const [form, setForm] = useState(initialForm);
+  const [ticketFile, setTicketFile] = useState(null);
   const [reply, setReply] = useState("");
+  const [replyFile, setReplyFile] = useState(null);
 
   const displayName = userUser?.full_name || userUser?.username || "User";
 
@@ -95,9 +147,16 @@ export default function SupportPage() {
     event.preventDefault();
     try {
       setCreating(true);
-      const res = await axiosInstance.post("/user/create", form);
+      const formData = new FormData();
+      formData.append("subject", form.subject);
+      formData.append("message", form.message);
+      if (ticketFile) formData.append("attachment", ticketFile);
+      const res = await axiosInstance.post("/user/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       notify(res.data?.message || "Ticket created successfully.", "success", "Ticket opened");
       setForm(initialForm);
+      setTicketFile(null);
       await loadTickets(res.data?.ticket_id);
     } catch (error) {
       notify(error?.response?.data?.error || "Failed to create ticket.", "error", "Create failed");
@@ -108,14 +167,18 @@ export default function SupportPage() {
 
   const sendReply = async (event) => {
     event.preventDefault();
-    if (!activeTicket?.id || !reply.trim()) return;
+    if (!activeTicket?.id || (!reply.trim() && !replyFile)) return;
     try {
       setReplying(true);
-      const res = await axiosInstance.post(`/user/${activeTicket.id}/reply`, {
-        message: reply,
+      const formData = new FormData();
+      formData.append("message", reply);
+      if (replyFile) formData.append("attachment", replyFile);
+      const res = await axiosInstance.post(`/user/${activeTicket.id}/reply`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
       notify(res.data?.message || "Reply sent successfully.", "success", "Reply sent");
       setReply("");
+      setReplyFile(null);
       await loadMessages(activeTicket);
       await loadTickets(activeTicket.id);
     } catch (error) {
@@ -205,6 +268,17 @@ export default function SupportPage() {
                   required
                 />
               </label>
+              <label>
+                Attachment
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  onChange={(event) => setTicketFile(event.target.files?.[0] || null)}
+                />
+                <small className={styles.fieldHint}>
+                  {ticketFile ? ticketFile.name : "Optional PDF or image, up to 10 MB."}
+                </small>
+              </label>
               <button type="submit" className={styles.primaryButton} disabled={creating}>
                 <FiPlus />
                 <span>{creating ? "Creating..." : "Create ticket"}</span>
@@ -238,7 +312,7 @@ export default function SupportPage() {
                   >
                     <div>
                       <strong>{ticket.subject}</strong>
-                      <small>#{ticket.id} • {ticket.created_at}</small>
+                      <small>#{ticket.id} • {formatSupportDate(ticket.created_at)}</small>
                     </div>
                     <span className={styles.ticketStatus}>{ticket.status}</span>
                   </button>
@@ -285,8 +359,9 @@ export default function SupportPage() {
                     key={message.id}
                   >
                     <strong>{message.sender === "user" ? "You" : "Support"}</strong>
-                    <p>{message.message}</p>
-                    <small>{message.created_at}</small>
+                    {message.message ? <p>{message.message}</p> : null}
+                    <AttachmentPreview message={message} />
+                    <small>{formatSupportDate(message.created_at)}</small>
                   </article>
                 ))}
               </div>
@@ -298,9 +373,17 @@ export default function SupportPage() {
                     value={reply}
                     onChange={(event) => setReply(event.target.value)}
                     placeholder="Reply to this ticket"
-                    required
                   />
-                  <button type="submit" className={styles.primaryButton} disabled={replying || !reply.trim()}>
+                  <label className={styles.inlineFileInput}>
+                    <FiPaperclip />
+                    <span>{replyFile ? replyFile.name : "Attach PDF or image"}</span>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      onChange={(event) => setReplyFile(event.target.files?.[0] || null)}
+                    />
+                  </label>
+                  <button type="submit" className={styles.primaryButton} disabled={replying || (!reply.trim() && !replyFile)}>
                     <FiSend />
                     <span>{replying ? "Sending..." : "Send reply"}</span>
                   </button>

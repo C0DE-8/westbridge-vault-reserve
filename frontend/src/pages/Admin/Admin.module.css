@@ -251,6 +251,26 @@
   gap: 8px;
 }
 
+.dangerSoftBtn {
+  min-height: 40px;
+  border-radius: 12px;
+  padding: 0 14px;
+  border: 1px solid rgba(220, 38, 38, 0.22);
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dangerSoftBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .secondaryBtn {
   min-height: 40px;
   border-radius: 12px;
@@ -360,6 +380,13 @@
   display: grid;
   grid-template-columns: 1.4fr 1fr;
   gap: 16px;
+}
+
+.supportDesk {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.35fr);
+  gap: 16px;
+  align-items: start;
 }
 
 .panel {
@@ -1298,6 +1325,201 @@
   cursor: not-allowed;
 }
 
+.supportTicketList {
+  display: grid;
+  gap: 10px;
+}
+
+.supportTicketButton {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--card-bg) 76%, transparent);
+  color: var(--text);
+  padding: 12px;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+
+.supportTicketButton span {
+  min-width: 0;
+}
+
+.supportTicketButton strong,
+.supportTicketButton small {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.supportTicketButton small {
+  margin-top: 4px;
+  color: var(--text-soft);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.supportTicketButtonActive {
+  border-color: rgba(37, 99, 235, 0.32);
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.supportTicketMeta {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.supportTicketMeta small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+}
+
+.supportThread {
+  display: grid;
+  gap: 12px;
+}
+
+.supportMessage {
+  width: min(100%, 720px);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.supportMessage strong,
+.supportMessage p,
+.supportMessage small {
+  display: block;
+}
+
+.supportMessage p {
+  margin: 8px 0 0;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.supportMessage small {
+  margin-top: 10px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.supportMessageUser {
+  margin-right: auto;
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.supportMessageAdmin {
+  margin-left: auto;
+  background: color-mix(in srgb, var(--card-bg) 80%, transparent);
+}
+
+.supportAttachment {
+  margin-top: 10px;
+  width: min(100%, 380px);
+  min-height: 64px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  text-decoration: none;
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.supportAttachment img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+}
+
+.supportAttachment span {
+  min-width: 0;
+}
+
+.supportAttachment strong,
+.supportAttachment small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.supportAttachmentIcon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.supportReplyForm {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.supportReplyForm textarea {
+  width: 100%;
+  min-height: 112px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 12px;
+  resize: vertical;
+  font: inherit;
+}
+
+.supportReplyActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.supportFileInput {
+  max-width: min(100%, 360px);
+  min-height: 40px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--card-bg);
+  color: var(--text);
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.supportFileInput span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.supportFileInput input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .documents {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1566,7 +1788,8 @@
   .transferControlGrid,
   .atmFeeGrid,
   .simGrid,
-  .transferFilters {
+  .transferFilters,
+  .supportDesk {
     grid-template-columns: 1fr;
   }
 

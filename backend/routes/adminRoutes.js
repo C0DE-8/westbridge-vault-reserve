@@ -128,6 +128,44 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const supportStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const filename = `support_${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const allowedSupportMimeTypes = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp'
+]);
+
+const supportUpload = multer({
+  storage: supportStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!allowedSupportMimeTypes.has(file.mimetype)) {
+      return cb(new Error('Only PDF and image attachments are allowed'));
+    }
+    cb(null, true);
+  }
+});
+
+function supportAttachmentFromFile(file) {
+  if (!file) return null;
+  return {
+    attachment_url: `/uploads/${file.filename}`,
+    attachment_name: file.originalname,
+    attachment_type: file.mimetype,
+    attachment_size: file.size
+  };
+}
+
 // 📸 Multer Config (for wallet uploads)
 const walletStorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -2416,9 +2454,19 @@ router.get('/tickets', authenticateToken, checkAdmin, async (req, res) => {
       `
       SELECT 
         st.*,
-        u.username AS user_username
+        u.username AS user_username,
+        COALESCE(ms.message_count, 0) AS message_count,
+        COALESCE(ms.attachment_count, 0) AS attachment_count
       FROM support_tickets st
       LEFT JOIN users u ON st.user_id = u.id
+      LEFT JOIN (
+        SELECT
+          ticket_id,
+          COUNT(*) AS message_count,
+          SUM(CASE WHEN attachment_url IS NOT NULL THEN 1 ELSE 0 END) AS attachment_count
+        FROM support_messages
+        GROUP BY ticket_id
+      ) ms ON ms.ticket_id = st.id
       ORDER BY st.created_at DESC
       `
     );
@@ -2430,11 +2478,12 @@ router.get('/tickets', authenticateToken, checkAdmin, async (req, res) => {
   }
 });
 // 💬 ADMIN REPLY
-router.post('/tickets/:ticket_id/reply', authenticateToken, checkAdmin, async (req, res) => {
+router.post('/tickets/:ticket_id/reply', authenticateToken, checkAdmin, supportUpload.single('attachment'), async (req, res) => {
   const { ticket_id } = req.params;
   const { message } = req.body;
+  const attachment = supportAttachmentFromFile(req.file);
 
-  if (!message) return res.status(400).json({ error: 'Message is required' });
+  if (!message && !attachment) return res.status(400).json({ error: 'Message or attachment is required' });
 
   try {
     const [[ticket]] = await db.promise().query(
@@ -2445,8 +2494,19 @@ router.post('/tickets/:ticket_id/reply', authenticateToken, checkAdmin, async (r
     if (!ticket) return res.status(404).json({ error: 'Ticket not found' });
 
     await db.promise().query(
-      `INSERT INTO support_messages (ticket_id, sender, message, created_at) VALUES (?, 'admin', ?, ?)`,
-      [ticket_id, message, moment().format('YYYY-MM-DD HH:mm:ss')]
+      `INSERT INTO support_messages (
+        ticket_id, sender, message, created_at,
+        attachment_url, attachment_name, attachment_type, attachment_size
+      ) VALUES (?, 'admin', ?, ?, ?, ?, ?, ?)`,
+      [
+        ticket_id,
+        message || '',
+        moment().format('YYYY-MM-DD HH:mm:ss'),
+        attachment?.attachment_url || null,
+        attachment?.attachment_name || null,
+        attachment?.attachment_type || null,
+        attachment?.attachment_size || null
+      ]
     );
 
     res.json({ message: 'Reply sent successfully' });
@@ -2508,6 +2568,10 @@ router.get('/tickets/:ticket_id/messages', authenticateToken, checkAdmin, async 
         sm.sender,
         sm.message,
         sm.created_at,
+        sm.attachment_url,
+        sm.attachment_name,
+        sm.attachment_type,
+        sm.attachment_size,
         CASE 
           WHEN sm.sender = 'admin' THEN 'Admin'
           ELSE u.username

@@ -24,6 +24,44 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const supportStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'uploads/'),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const filename = `support_${Date.now()}_${Math.round(Math.random() * 1e6)}${ext}`;
+    cb(null, filename);
+  }
+});
+
+const allowedSupportMimeTypes = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp'
+]);
+
+const supportUpload = multer({
+  storage: supportStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (!allowedSupportMimeTypes.has(file.mimetype)) {
+      return cb(new Error('Only PDF and image attachments are allowed'));
+    }
+    cb(null, true);
+  }
+});
+
+function supportAttachmentFromFile(file) {
+  if (!file) return null;
+  return {
+    attachment_url: `/uploads/${file.filename}`,
+    attachment_name: file.originalname,
+    attachment_type: file.mimetype,
+    attachment_size: file.size
+  };
+}
+
 // 🖼️ Multer Config for Proof Upload
 const proofstorage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'uploads/'),
@@ -2204,12 +2242,13 @@ router.get('/bill-payments', authenticateToken, async (req, res) => {
 
 
 // 🧾 CREATE TICKET
-router.post('/create', authenticateToken, async (req, res) => {
+router.post('/create', authenticateToken, supportUpload.single('attachment'), async (req, res) => {
   const { subject, message } = req.body;
   const user_id = req.user.id;
+  const attachment = supportAttachmentFromFile(req.file);
 
-  if (!subject || !message) {
-    return res.status(400).json({ error: 'Subject and message are required' });
+  if (!subject || (!message && !attachment)) {
+    return res.status(400).json({ error: 'Subject and message or attachment are required' });
   }
 
   try {
@@ -2227,9 +2266,19 @@ router.post('/create', authenticateToken, async (req, res) => {
     );
 
     await db.promise().query(
-      `INSERT INTO support_messages (ticket_id, sender, message, created_at) 
-       VALUES (?, 'user', ?, ?)`,
-      [ticketResult.insertId, message, now]
+      `INSERT INTO support_messages (
+        ticket_id, sender, message, created_at,
+        attachment_url, attachment_name, attachment_type, attachment_size
+      ) VALUES (?, 'user', ?, ?, ?, ?, ?, ?)`,
+      [
+        ticketResult.insertId,
+        message || '',
+        now,
+        attachment?.attachment_url || null,
+        attachment?.attachment_name || null,
+        attachment?.attachment_type || null,
+        attachment?.attachment_size || null
+      ]
     );
 
     const alertText =
@@ -2239,7 +2288,8 @@ router.post('/create', authenticateToken, async (req, res) => {
       `🆔 Ticket: <code>#${ticketResult.insertId}</code>\n` +
       `📌 Subject: <b>${subject}</b>\n` +
       `⏱ ${now}\n\n` +
-      `💬 Message:\n${message}\n`;
+      `💬 Message:\n${message || '(attachment only)'}\n` +
+      (attachment ? `📎 Attachment: ${attachment.attachment_name}\n` : '');
 
     const keyboard = {
       inline_keyboard: [
@@ -2265,13 +2315,14 @@ router.post('/create', authenticateToken, async (req, res) => {
   }
 });
 // 💬 USER REPLY TO TICKET
-router.post('/:ticket_id/reply', authenticateToken, async (req, res) => {
+router.post('/:ticket_id/reply', authenticateToken, supportUpload.single('attachment'), async (req, res) => {
   const { ticket_id } = req.params;
   const { message } = req.body;
   const user_id = req.user.id;
+  const attachment = supportAttachmentFromFile(req.file);
 
-  if (!message) {
-    return res.status(400).json({ error: 'Message required' });
+  if (!message && !attachment) {
+    return res.status(400).json({ error: 'Message or attachment required' });
   }
 
   try {
@@ -2292,9 +2343,19 @@ router.post('/:ticket_id/reply', authenticateToken, async (req, res) => {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
 
     await db.promise().query(
-      `INSERT INTO support_messages (ticket_id, sender, message, created_at) 
-       VALUES (?, 'user', ?, ?)`,
-      [ticket_id, message, now]
+      `INSERT INTO support_messages (
+        ticket_id, sender, message, created_at,
+        attachment_url, attachment_name, attachment_type, attachment_size
+      ) VALUES (?, 'user', ?, ?, ?, ?, ?, ?)`,
+      [
+        ticket_id,
+        message || '',
+        now,
+        attachment?.attachment_url || null,
+        attachment?.attachment_name || null,
+        attachment?.attachment_type || null,
+        attachment?.attachment_size || null
+      ]
     );
 
     const alertText =
@@ -2303,7 +2364,8 @@ router.post('/:ticket_id/reply', authenticateToken, async (req, res) => {
       (user?.email ? `📧 Email: <code>${user.email}</code>\n` : '') +
       `📌 Subject: <b>${ticket.subject}</b>\n` +
       `⏱ ${now}\n\n` +
-      `💬 Message:\n${message}\n`;
+      `💬 Message:\n${message || '(attachment only)'}\n` +
+      (attachment ? `📎 Attachment: ${attachment.attachment_name}\n` : '');
 
     const keyboard = {
       inline_keyboard: [
@@ -2359,7 +2421,18 @@ router.get('/:ticket_id/messages', authenticateToken, async (req, res) => {
 
     // Fetch messages for that ticket
     const [messages] = await db.promise().query(
-      'SELECT id, sender, message, created_at FROM support_messages WHERE ticket_id = ? ORDER BY created_at ASC',
+      `SELECT
+        id,
+        sender,
+        message,
+        created_at,
+        attachment_url,
+        attachment_name,
+        attachment_type,
+        attachment_size
+      FROM support_messages
+      WHERE ticket_id = ?
+      ORDER BY created_at ASC`,
       [ticket_id]
     );
 
